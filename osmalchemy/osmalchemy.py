@@ -69,6 +69,15 @@ class OSMAlchemy(object):
                 'polymorphic_identity': prefix + 'nodes',
             }
 
+            def __init__(self, latitude=0.0, longitude=0.0, **kwargs):
+                """ Initialisation with two main positional arguments. """
+
+                self.latitude = latitude
+                self.longitude = longitude
+
+                # Pass rest on to default constructor
+                OSMElement.__init__(self, **kwargs)
+
         class OSMWay(OSMElement):
             """ An OSM way element (also area).
 
@@ -142,6 +151,16 @@ class OSMAlchemy(object):
             tag_id = Column(Integer, primary_key=True)
             key = Column(String)
             value = Column(String)
+
+            def __init__(self, key="", value="", **kwargs):
+                """ Initialisation with two main positional arguments. """
+
+                self.key = key
+                self.value = value
+
+                # Pass rest on to default constructor
+                base.__init__(self, **kwargs)
+
 
         # Set the classes as members of the wrapper object
         self.Node = OSMNode #pylint: disable=invalid-name
