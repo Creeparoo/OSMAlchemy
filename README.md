@@ -69,6 +69,11 @@ OSMAlchemy is tested against the following SQLAlchemy backends:
  * PostgreSQL
  * MySQL
 
+### Code status
+
+[![Build Status](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/?branch=master)
+
 ## License
 
 OSMAlchemy is licensed under the MIT license. Alternatively, you are
