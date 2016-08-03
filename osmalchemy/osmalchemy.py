@@ -42,7 +42,7 @@ class OSMAlchemy(object):
             element_id = Column(Integer, primary_key=True)
             updated = Column(DateTime, default=datetime.datetime.now,
                              onupdate=datetime.datetime.now)
-            type = Column(String)
+            type = Column(String(256))
             tags = relationship('OSMTag', secondary=prefix+'elements_tags')
 
             __mapper_args__ = {
@@ -121,7 +121,7 @@ class OSMAlchemy(object):
             map_id = Column(Integer, primary_key=True)
             relation_id = Column(Integer, ForeignKey(prefix + 'relations.element_id'))
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'))
-            role = Column(String)
+            role = Column(String(256))
 
         class OSMRelation(OSMElement):
             """ An OSM relation element.
@@ -149,8 +149,8 @@ class OSMAlchemy(object):
             __tablename__ = prefix + "tags"
 
             tag_id = Column(Integer, primary_key=True)
-            key = Column(String)
-            value = Column(String)
+            key = Column(String(256))
+            value = Column(String(256))
 
             def __init__(self, key="", value="", **kwargs):
                 """ Initialisation with two main positional arguments. """
