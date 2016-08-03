@@ -7,7 +7,6 @@ setup(
     # Basic information
     name = 'OSMAlchemy',
     version = '0.1',
-    license = 'MIT',
     keywords = 'osm openstreetmap proxy caching orm',
     description = 'OpenStreetMap to SQLAlchemy bridge',
     url = 'https://github.com/Natureshadow/OSMAlchemy',
