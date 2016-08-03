@@ -29,7 +29,7 @@ class OSMAlchemy():
         # Check what we got as declarative base
         if base is None:
             # Nothing, so create one
-            base = declarativ_base()
+            base = declarative_base()
         elif hasattr(base, "Model"):
             # Unwrap Flask-SQLAlchemy object if we got one
             base = base.Model
