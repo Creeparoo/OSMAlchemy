@@ -1,11 +1,18 @@
 import unittest
-from testing.mysqld import Mysqld
-from testing.postgresql import Postgresql
+from testing.mysqld import MysqldFactory
+from testing.postgresql import PostgresqlFactory
 
 from osmalchemy import OSMAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+Postgresql = PostgresqlFactory(cache_initialized_db=True)
+Mysqld = MysqldFactory(cache_initialized_db=True)
+
+def tearDownModule():
+    Postgresql.clear_cache()
+    Mysqld.clear_cache()
 
 class OSMAlchemyModelTests(object):
     """ Incomplete base class for common test routines.
