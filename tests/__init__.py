@@ -1,17 +1,18 @@
 import unittest
+from testing.postgresql import Postgresql
 
 from osmalchemy import OSMAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-class OSMAlchemyModelTests(unittest.TestCase):
-    """ Test cases for the data model, without any OSM API
-    integration.
+class OSMAlchemyModelTests(object):
+    """ Incomplete base class for common test routines.
+
+    Subclassed in engine-dependent test classes.
     """
 
     def setUp(self):
-        self.engine = create_engine("sqlite:///:memory:", echo=True)
         self.base = declarative_base(bind=self.engine)
         self.osmalchemy = OSMAlchemy(self.base)
         self.base.metadata.create_all()
@@ -136,3 +137,25 @@ class OSMAlchemyModelTests(unittest.TestCase):
         self.assertEqual((way.nodes[2].tags[0].key, way.nodes[2].tags[0].value), ("name", "Testampel"))
         self.assertEqual((way.nodes[2].tags[1].key, way.nodes[2].tags[1].value), ("foo", "bar"))
         self.assertIsNot(way.tags[1], way.nodes[2].tags[1])
+
+class OSMAlchemyModelTestsSQLite(OSMAlchemyModelTests, unittest.TestCase):
+    """ Tests run with SQLite """
+
+    def setUp(self):
+        self.engine = create_engine("sqlite:///:memory:", echo=True)
+        OSMAlchemyModelTests.setUp(self)
+
+    def tearDown(self):
+        OSMAlchemyModelTests.tearDown(self)
+
+class OSMAlchemyModelTestsPostgres(OSMAlchemyModelTests, unittest.TestCase):
+    """ Tests run with SQLite """
+
+    def setUp(self):
+        self.postgresql = Postgresql()
+        self.engine = create_engine(self.postgresql.url(), echo=True)
+        OSMAlchemyModelTests.setUp(self)
+
+    def tearDown(self):
+        self.postgresql.stop()
+        OSMAlchemyModelTests.tearDown(self)

@@ -24,6 +24,9 @@ setup(
     install_requires = [
                         'SQLAlchemy>=1.0.0',
                        ],
+    tests_require = [
+                     'testing.postgresql'
+                    ],
     test_suite = 'tests',
     classifiers = [
                    'Development Status :: 3 - Alpha',
