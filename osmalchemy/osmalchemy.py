@@ -100,3 +100,7 @@ class OSMAlchemy():
         self.Way = OSMWay
         self.Relation = OSMRelation
         self.Tag = OSMTag
+
+        # Store generation attributes
+        self._base = base
+        self._prefix = prefix
