@@ -8,8 +8,9 @@ not historic data.
 """
 
 import datetime
-from sqlalchemy import Column, Integer, Float, String, DateTime, relationship
+from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 class OSMAlchemy():
     """ Wrapper class for the OSMAlchemy model """
