@@ -89,6 +89,7 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "relations_elements"
 
+            id = Column(Integer, primary_key=True)
             relation_id = Column(Integer, ForeignKey(prefix + 'relations.id'))
             element_id = Column(Integer, ForeignKey(prefix + 'elements.id'))
             role = Column(String)
