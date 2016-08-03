@@ -23,3 +23,11 @@ class OSMAlchemyModelTests(unittest.TestCase):
         node.longitude = 7.0
         self.session.add(node)
         self.session.commit()
+
+    def test_create_node_with_tags(self):
+        node = self.osmalchemy.Node(51.0, 7.0)
+        node.tags = [self.osmalchemy.Tag("name", "test"),
+                     self.osmalchemy.Tag("foo", "bar")]
+
+        self.session.add(node)
+        self.session.commit()
