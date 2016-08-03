@@ -17,6 +17,10 @@ class OSMAlchemyModelTests(unittest.TestCase):
         self.base.metadata.create_all()
         self.session = sessionmaker(bind=self.engine)()
 
+    def tearDown(self):
+        self.session.close()
+        self.engine.dispose()
+
     def test_create_node(self):
         # Create node
         node = self.osmalchemy.Node()
