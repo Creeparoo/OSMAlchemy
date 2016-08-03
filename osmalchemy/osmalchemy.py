@@ -43,6 +43,7 @@ class OSMAlchemy(object):
             updated = Column(DateTime, default=datetime.datetime.now,
                              onupdate=datetime.datetime.now)
             type = Column(String)
+            tags = relationship('OSMTag', secondary=prefix+'elements_tags')
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'elements',
@@ -63,7 +64,6 @@ class OSMAlchemy(object):
                                 primary_key=True)
             latitude = Column(Float, nullable=False)
             longitude = Column(Float, nullable=False)
-            tags = relationship('OSMTag')
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'nodes',
@@ -80,12 +80,29 @@ class OSMAlchemy(object):
 
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                                 primary_key=True)
-            nodes = relationship('OSMNode')
-            tags = relationship('OSMTag')
+            nodes = relationship('OSMNode', secondary=prefix+'ways_nodes')
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'ways',
             }
+
+        class OSMElementsTags(base):
+            """ Secondary mapping table for elements and tags """
+
+            __tablename__ = prefix + "elements_tags"
+
+            map_id = Column(Integer, primary_key=True)
+            element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'))
+            tag_id = Column(Integer, ForeignKey(prefix + 'tags.tag_id'))
+
+        class OSMWaysNodes(base):
+            """ Secondary mapping table for ways and nodes """
+
+            __tablename__ = prefix + "ways_nodes"
+
+            map_id = Column(Integer, primary_key=True)
+            way_id = Column(Integer, ForeignKey(prefix + 'ways.element_id'))
+            node_id = Column(Integer, ForeignKey(prefix + 'nodes.element_id'))
 
         class OSMRelationsElements(base):
             """ Secondary mapping table for relation members """
@@ -108,8 +125,7 @@ class OSMAlchemy(object):
 
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                                 primary_key=True)
-            members = relationship("OSMElement", secondary=OSMRelationsElements)
-            tags = relationship('OSMTag')
+            members = relationship("OSMElement", secondary=prefix+"relations_elements")
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'relations',
