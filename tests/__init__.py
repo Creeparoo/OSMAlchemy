@@ -1,4 +1,5 @@
 import unittest
+from testing.mysqld import Mysqld
 from testing.postgresql import Postgresql
 
 from osmalchemy import OSMAlchemy
@@ -158,4 +159,16 @@ class OSMAlchemyModelTestsPostgres(OSMAlchemyModelTests, unittest.TestCase):
 
     def tearDown(self):
         self.postgresql.stop()
+        OSMAlchemyModelTests.tearDown(self)
+
+class OSMAlchemyModelTestsMySQL(OSMAlchemyModelTests, unittest.TestCase):
+    """ Tests run with SQLite """
+
+    def setUp(self):
+        self.mysql = Mysqld()
+        self.engine = create_engine(self.mysql.url(), echo=True)
+        OSMAlchemyModelTests.setUp(self)
+
+    def tearDown(self):
+        self.mysql.stop()
         OSMAlchemyModelTests.tearDown(self)

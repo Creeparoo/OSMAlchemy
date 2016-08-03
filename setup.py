@@ -25,7 +25,8 @@ setup(
                         'SQLAlchemy>=1.0.0',
                        ],
     tests_require = [
-                     'testing.postgresql'
+                     'testing.postgresql',
+                     'testing.mysqld'
                     ],
     test_suite = 'tests',
     classifiers = [
