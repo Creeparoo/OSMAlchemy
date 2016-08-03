@@ -22,7 +22,7 @@ setup(
     # Distribution information
     zip_safe = True,
     install_requires = [
-                        'SQLAlchemy',
+                        'SQLAlchemy>=1.0.0',
                        ],
     classifiers = [
                    'Development Status :: 3 - Alpha',
