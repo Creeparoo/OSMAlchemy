@@ -18,16 +18,35 @@ class OSMAlchemyModelTests(unittest.TestCase):
         self.session = sessionmaker(bind=self.engine)()
 
     def test_create_node(self):
+        # Create node
         node = self.osmalchemy.Node()
         node.latitude = 51.0
         node.longitude = 7.0
+
+        # Store node
         self.session.add(node)
         self.session.commit()
 
+        # Query for node and check
+        node = self.session.query(self.osmalchemy.Node).filter_by(latitude=51.0).first()
+        self.assertEqual(node.latitude, 51.0)
+        self.assertEqual(node.longitude, 7.0)
+        self.assertEqual(len(node.tags), 0)
+
     def test_create_node_with_tags(self):
+        # Create node and tags
         node = self.osmalchemy.Node(51.0, 7.0)
         node.tags = [self.osmalchemy.Tag("name", "test"),
                      self.osmalchemy.Tag("foo", "bar")]
 
+        # Store everything
         self.session.add(node)
         self.session.commit()
+
+        # Query for node and check
+        node = self.session.query(self.osmalchemy.Node).filter_by(latitude=51.0).first()
+        self.assertEqual(node.latitude, 51.0)
+        self.assertEqual(node.longitude, 7.0)
+        self.assertEqual(len(node.tags), 2)
+        self.assertEqual((node.tags[0].key, node.tags[0].value), ("name", "test"))
+        self.assertEqual((node.tags[1].key, node.tags[1].value), ("foo", "bar"))
