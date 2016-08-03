@@ -12,7 +12,7 @@ from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-class OSMAlchemy():
+class OSMAlchemy(object):
     """ Wrapper class for the OSMAlchemy model """
 
     def __init__(self, base=None, prefix="osm_"):
@@ -39,8 +39,9 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "elements"
 
-            id = Column(Integer, primary_key=True)
-            updated = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+            element_id = Column(Integer, primary_key=True)
+            updated = Column(DateTime, default=datetime.datetime.now,
+                             onupdate=datetime.datetime.now)
             type = Column(String)
 
             __mapper_args__ = {
@@ -58,7 +59,8 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "nodes"
 
-            id = Column(Integer, ForeignKey(prefix + 'elements.id'), primary_key=True)
+            element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
+                                primary_key=True)
             latitude = Column(Float, nullable=False)
             longitude = Column(Float, nullable=False)
             tags = relationship('OSMTag')
@@ -76,7 +78,8 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "ways"
 
-            id = Column(Integer, ForeignKey(prefix + 'elements.id'), primary_key=True)
+            element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
+                                primary_key=True)
             nodes = relationship('OSMNode')
             tags = relationship('OSMTag')
 
@@ -89,9 +92,9 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "relations_elements"
 
-            id = Column(Integer, primary_key=True)
-            relation_id = Column(Integer, ForeignKey(prefix + 'relations.id'))
-            element_id = Column(Integer, ForeignKey(prefix + 'elements.id'))
+            map_id = Column(Integer, primary_key=True)
+            relation_id = Column(Integer, ForeignKey(prefix + 'relations.element_id'))
+            element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'))
             role = Column(String)
 
         class OSMRelation(OSMElement):
@@ -103,7 +106,8 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "relations"
 
-            id = Column(Integer, ForeignKey(prefix + 'elements.id'), primary_key=True)
+            element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
+                                primary_key=True)
             members = relationship("OSMElement", secondary=OSMRelationsElements)
             tags = relationship('OSMTag')
 
@@ -117,17 +121,17 @@ class OSMAlchemy():
             Simple key/value pair.
             """
 
-            __tablename__ = prefix + "tags" 
+            __tablename__ = prefix + "tags"
 
-            id = Column(Integer, primary_key=True)
+            tag_id = Column(Integer, primary_key=True)
             key = Column(String)
             value = Column(String)
 
         # Set the classes as members of the wrapper object
-        self.Node = OSMNode
-        self.Way = OSMWay
-        self.Relation = OSMRelation
-        self.Tag = OSMTag
+        self.Node = OSMNode #pylint: disable=invalid-name
+        self.Way = OSMWay #pylint: disable=invalid-name
+        self.Relation = OSMRelation #pylint: disable=invalid-name
+        self.Tag = OSMTag #pylint: disable=invalid-name
 
         # Store generation attributes
         self._base = base
