@@ -1,16 +1,29 @@
+#!/usr/bin/env python
+# ~*~ coding: utf-8 ~*~
+
+# Standard unit testing framework
 import unittest
+
+# Helper libraries for different database engines
 from testing.mysqld import MysqldFactory
 from testing.postgresql import PostgresqlFactory
 
+# Module to be tested
 from osmalchemy import OSMAlchemy
+
+# SQLAlchemy for working with model and data
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+# Create database engine factories to enable caching
 Postgresql = PostgresqlFactory(cache_initialized_db=True)
 Mysqld = MysqldFactory(cache_initialized_db=True)
 
 def tearDownModule():
+    """ Global test suite tear down code """
+
+    # Purge caches of database engines
     Postgresql.clear_cache()
     Mysqld.clear_cache()
 
@@ -157,7 +170,7 @@ class OSMAlchemyModelTestsSQLite(OSMAlchemyModelTests, unittest.TestCase):
         OSMAlchemyModelTests.tearDown(self)
 
 class OSMAlchemyModelTestsPostgres(OSMAlchemyModelTests, unittest.TestCase):
-    """ Tests run with SQLite """
+    """ Tests run with PostgreSQL """
 
     def setUp(self):
         self.postgresql = Postgresql()
@@ -169,7 +182,7 @@ class OSMAlchemyModelTestsPostgres(OSMAlchemyModelTests, unittest.TestCase):
         OSMAlchemyModelTests.tearDown(self)
 
 class OSMAlchemyModelTestsMySQL(OSMAlchemyModelTests, unittest.TestCase):
-    """ Tests run with SQLite """
+    """ Tests run with MySQL """
 
     def setUp(self):
         self.mysql = Mysqld()
