@@ -36,10 +36,17 @@ class OSMAlchemy():
         class OSMElement(base):
             """ Base class for all the conceptual OSM elements. """
 
-            __abstract__ = True
+            __tablename__ = prefix + "elements"
 
             id = Column(Integer, primary_key=True)
             updated = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+            type = Column(String)
+
+            __mapper_args__ = {
+                'polymorphic_identity': prefix + 'elements',
+                'polymorphic_on': type,
+                'with_polymorphic': '*'
+            }
 
         class OSMNode(OSMElement):
             """ An OSM node element.
@@ -50,9 +57,14 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "nodes"
 
+            id = Column(Integer, ForeignKey(prefix + 'elements.id'), primary_key=True)
             latitude = Column(Float, nullable=False)
             longitude = Column(Float, nullable=False)
             tags = relationship('OSMTag')
+
+            __mapper_args__ = {
+                'polymorphic_identity': prefix + 'nodes',
+            }
 
         class OSMWay(OSMElement):
             """ An OSM way element (also area).
@@ -63,8 +75,13 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "ways"
 
+            id = Column(Integer, ForeignKey(prefix + 'elements.id'), primary_key=True)
             nodes = relationship('OSMNode')
             tags = relationship('OSMTag')
+
+            __mapper_args__ = {
+                'polymorphic_identity': prefix + 'ways',
+            }
 
         class OSMRelation(OSMElement):
             """ An OSM relation element.
@@ -75,8 +92,13 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "relations"
 
+            id = Column(Integer, ForeignKey(prefix + 'elements.id'), primary_key=True)
             # members (with role)
             tags = relationship('OSMTag')
+
+            __mapper_args__ = {
+                'polymorphic_identity': prefix + 'relations',
+            }
 
         class OSMTag(base):
             """ An OSM tag element.
