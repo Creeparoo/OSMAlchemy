@@ -83,6 +83,15 @@ class OSMAlchemy():
                 'polymorphic_identity': prefix + 'ways',
             }
 
+        class OSMRelationsElements(base):
+            """ Secondary mapping table for relation members """
+
+            __tablename__ = prefix + "relations_elements"
+
+            relation_id = Column(Integer, ForeignKey(prefix + 'relations.id'))
+            element_id = Column(Integer, ForeignKey(prefix + 'elements.id'))
+            role = Column(String)
+
         class OSMRelation(OSMElement):
             """ An OSM relation element.
 
@@ -93,7 +102,7 @@ class OSMAlchemy():
             __tablename__ = prefix + "relations"
 
             id = Column(Integer, ForeignKey(prefix + 'elements.id'), primary_key=True)
-            # members (with role)
+            members = relationship("OSMElement", secondary=OSMRelationsElements)
             tags = relationship('OSMTag')
 
             __mapper_args__ = {
