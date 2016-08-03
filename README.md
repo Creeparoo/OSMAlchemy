@@ -57,6 +57,18 @@ under all circumstances.
 OSMAlchemy was designed for use in the Veripeditus Augmented Reality
 framework.
 
+## Development and standards
+
+Albeit taking the above into account, OSMAlchemy is developed with
+quality and good support in mind. That means code shall be well-tested
+and well-documented.
+
+OSMAlchemy is tested against the following SQLAlchemy backends:
+
+ * SQLite
+ * PostgreSQL
+ * MySQL
+
 ## License
 
 OSMAlchemy is licensed under the MIT license. Alternatively, you are
