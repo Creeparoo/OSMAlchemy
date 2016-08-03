@@ -25,6 +25,7 @@ setup(
                         'SQLAlchemy>=1.0.0',
                        ],
     tests_require = [
+                     'SQLAlchemy>=1.0.0',
                      'testing.postgresql',
                      'testing.mysqld'
                     ],
