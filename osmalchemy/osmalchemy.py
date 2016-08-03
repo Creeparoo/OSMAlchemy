@@ -117,12 +117,7 @@ class OSMAlchemy():
 
             __tablename__ = prefix + "tags" 
 
-            # Not inheriting from OSMElement but defining our own, internal
-            # id, as the tag element does not really exist and we only need
-            # this id to track in SQL and above all, we do not need tracking
-            # of update time and the like.
             id = Column(Integer, primary_key=True)
-
             key = Column(String)
             value = Column(String)
 
