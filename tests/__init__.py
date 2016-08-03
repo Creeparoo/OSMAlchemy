@@ -54,3 +54,85 @@ class OSMAlchemyModelTests(unittest.TestCase):
         self.assertEqual(len(node.tags), 2)
         self.assertEqual((node.tags[0].key, node.tags[0].value), ("name", "test"))
         self.assertEqual((node.tags[1].key, node.tags[1].value), ("foo", "bar"))
+
+    def test_create_way_with_nodes(self):
+        # Create way and nodes
+        way = self.osmalchemy.Way()
+        way.nodes = [self.osmalchemy.Node(51.0, 7.0),
+                     self.osmalchemy.Node(51.1, 7.1),
+                     self.osmalchemy.Node(51.2, 7.2),
+                     self.osmalchemy.Node(51.3, 7.3),
+                     self.osmalchemy.Node(51.4, 7.4)]
+
+        # Store everything
+        self.session.add(way)
+        self.session.commit()
+
+        # Query for way and check
+        way = self.session.query(self.osmalchemy.Way).first()
+        self.assertEqual(len(way.nodes), 5)
+        self.assertEqual((way.nodes[0].latitude, way.nodes[0].longitude), (51.0, 7.0))
+        self.assertEqual((way.nodes[1].latitude, way.nodes[1].longitude), (51.1, 7.1))
+        self.assertEqual((way.nodes[2].latitude, way.nodes[2].longitude), (51.2, 7.2))
+        self.assertEqual((way.nodes[3].latitude, way.nodes[3].longitude), (51.3, 7.3))
+        self.assertEqual((way.nodes[4].latitude, way.nodes[4].longitude), (51.4, 7.4))
+
+    def test_create_way_with_nodes_and_tags(self):
+        # Create way and nodes
+        way = self.osmalchemy.Way()
+        way.nodes = [self.osmalchemy.Node(51.0, 7.0),
+                     self.osmalchemy.Node(51.1, 7.1),
+                     self.osmalchemy.Node(51.2, 7.2),
+                     self.osmalchemy.Node(51.3, 7.3),
+                     self.osmalchemy.Node(51.4, 7.4)]
+        way.tags = [self.osmalchemy.Tag("name", "Testway"),
+                    self.osmalchemy.Tag("foo", "bar")]
+
+        # Store everything
+        self.session.add(way)
+        self.session.commit()
+
+        # Query for way and check
+        way = self.session.query(self.osmalchemy.Way).first()
+        self.assertEqual(len(way.nodes), 5)
+        self.assertEqual((way.nodes[0].latitude, way.nodes[0].longitude), (51.0, 7.0))
+        self.assertEqual((way.nodes[1].latitude, way.nodes[1].longitude), (51.1, 7.1))
+        self.assertEqual((way.nodes[2].latitude, way.nodes[2].longitude), (51.2, 7.2))
+        self.assertEqual((way.nodes[3].latitude, way.nodes[3].longitude), (51.3, 7.3))
+        self.assertEqual((way.nodes[4].latitude, way.nodes[4].longitude), (51.4, 7.4))
+        self.assertEqual(len(way.tags), 2)
+        self.assertEqual((way.tags[0].key, way.tags[0].value), ("name", "Testway"))
+        self.assertEqual((way.tags[1].key, way.tags[1].value), ("foo", "bar"))
+
+    def test_create_way_with_nodes_and_tags_and_tags_on_node(self):
+        # Create way and nodes
+        way = self.osmalchemy.Way()
+        way.nodes = [self.osmalchemy.Node(51.0, 7.0),
+                     self.osmalchemy.Node(51.1, 7.1),
+                     self.osmalchemy.Node(51.2, 7.2),
+                     self.osmalchemy.Node(51.3, 7.3),
+                     self.osmalchemy.Node(51.4, 7.4)]
+        way.tags = [self.osmalchemy.Tag("name", "Testway"),
+                    self.osmalchemy.Tag("foo", "bar")]
+        way.nodes[2].tags = [self.osmalchemy.Tag("name", "Testampel"),
+                             self.osmalchemy.Tag("foo", "bar")]
+
+        # Store everything
+        self.session.add(way)
+        self.session.commit()
+
+        # Query for way and check
+        way = self.session.query(self.osmalchemy.Way).first()
+        self.assertEqual(len(way.nodes), 5)
+        self.assertEqual((way.nodes[0].latitude, way.nodes[0].longitude), (51.0, 7.0))
+        self.assertEqual((way.nodes[1].latitude, way.nodes[1].longitude), (51.1, 7.1))
+        self.assertEqual((way.nodes[2].latitude, way.nodes[2].longitude), (51.2, 7.2))
+        self.assertEqual((way.nodes[3].latitude, way.nodes[3].longitude), (51.3, 7.3))
+        self.assertEqual((way.nodes[4].latitude, way.nodes[4].longitude), (51.4, 7.4))
+        self.assertEqual(len(way.tags), 2)
+        self.assertEqual((way.tags[0].key, way.tags[0].value), ("name", "Testway"))
+        self.assertEqual((way.tags[1].key, way.tags[1].value), ("foo", "bar"))
+        self.assertEqual(len(way.nodes[2].tags), 2)
+        self.assertEqual((way.nodes[2].tags[0].key, way.nodes[2].tags[0].value), ("name", "Testampel"))
+        self.assertEqual((way.nodes[2].tags[1].key, way.nodes[2].tags[1].value), ("foo", "bar"))
+        self.assertIsNot(way.tags[1], way.nodes[2].tags[1])
