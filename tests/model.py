@@ -4,6 +4,9 @@
 # Standard unit testing framework
 import unittest
 
+# We want to profile test cases
+import time
+
 # Helper libraries for different database engines
 from testing.mysqld import MysqldFactory
 from testing.postgresql import PostgresqlFactory
@@ -20,12 +23,24 @@ from sqlalchemy.orm import sessionmaker
 Postgresql = PostgresqlFactory(cache_initialized_db=True)
 Mysqld = MysqldFactory(cache_initialized_db=True)
 
+# Dictionary to store profiling information about tests
+profile = {}
+
 def tearDownModule():
     """ Global test suite tear down code """
 
     # Purge caches of database engines
     Postgresql.clear_cache()
     Mysqld.clear_cache()
+
+    # Print profiling info
+    print("Database model test times")
+    print("=========================")
+    print("")
+    for suite in profile:
+        print("%8.3f s\t%s" % (sum([profile[suite][test] for test in profile[suite]]), suite))
+        for test in profile[suite]:
+            print("\t%8.3f s\t%s" % (profile[suite][test], test))
 
 class OSMAlchemyModelTests(object):
     """ Incomplete base class for common test routines.
@@ -34,6 +49,10 @@ class OSMAlchemyModelTests(object):
     """
 
     def setUp(self):
+        if not self.__class__.__name__ in profile:
+            profile[self.__class__.__name__] = {}
+        profile[self.__class__.__name__][self.id().split(".")[-1]] = time.time()
+
         self.base = declarative_base(bind=self.engine)
         self.osmalchemy = OSMAlchemy(self.base)
         self.base.metadata.create_all()
@@ -42,6 +61,9 @@ class OSMAlchemyModelTests(object):
     def tearDown(self):
         self.session.close()
         self.engine.dispose()
+
+        profile[self.__class__.__name__][self.id().split(".")[-1]] -= time.time()
+        profile[self.__class__.__name__][self.id().split(".")[-1]] *= -1
 
     def test_create_node(self):
         # Create node
