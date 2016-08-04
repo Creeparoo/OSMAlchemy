@@ -80,6 +80,19 @@ class OSMAlchemy(object):
                 # Pass rest on to default constructor
                 OSMElement.__init__(self, **kwargs)
 
+        class OSMWaysNodes(base):
+            """ Secondary mapping table for ways and nodes """
+
+            __tablename__ = prefix + "ways_nodes"
+
+            map_id = Column(Integer, primary_key=True)
+            way_id = Column(Integer, ForeignKey(prefix + 'ways.element_id'))
+            node_id = Column(Integer, ForeignKey(prefix + 'nodes.element_id'))
+            position = Column(Integer)
+
+            way = relationship("OSMWay", foreign_keys=[way_id])
+            node = relationship("OSMNode", foreign_keys=[node_id])
+
         class OSMWay(OSMElement):
             """ An OSM way element (also area).
 
@@ -91,7 +104,10 @@ class OSMAlchemy(object):
 
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                                 primary_key=True)
-            nodes = relationship('OSMNode', secondary=prefix+'ways_nodes')
+            _nodes = relationship('OSMWaysNodes', order_by="OSMWaysNodes.position",
+                                  collection_class=ordering_list("position"))
+            nodes = association_proxy("_nodes", "node",
+                                      creator=lambda _n: OSMWaysNodes(node=_n))
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'ways',
@@ -106,14 +122,6 @@ class OSMAlchemy(object):
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'))
             tag_id = Column(Integer, ForeignKey(prefix + 'tags.tag_id'))
 
-        class OSMWaysNodes(base):
-            """ Secondary mapping table for ways and nodes """
-
-            __tablename__ = prefix + "ways_nodes"
-
-            map_id = Column(Integer, primary_key=True)
-            way_id = Column(Integer, ForeignKey(prefix + 'ways.element_id'))
-            node_id = Column(Integer, ForeignKey(prefix + 'nodes.element_id'))
 
         class OSMRelationsElements(base):
             """ Secondary mapping table for relation members """
