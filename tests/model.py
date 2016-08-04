@@ -84,8 +84,7 @@ class OSMAlchemyModelTests(object):
     def test_create_node_with_tags(self):
         # Create node and tags
         node = self.osmalchemy.Node(51.0, 7.0)
-        node.tags = [self.osmalchemy.Tag("name", "test"),
-                     self.osmalchemy.Tag("foo", "bar")]
+        node.tags = {"name": "test", "foo": "bar"}
 
         # Store everything
         self.session.add(node)
@@ -96,8 +95,8 @@ class OSMAlchemyModelTests(object):
         self.assertEqual(node.latitude, 51.0)
         self.assertEqual(node.longitude, 7.0)
         self.assertEqual(len(node.tags), 2)
-        self.assertEqual((node.tags[0].key, node.tags[0].value), ("foo", "bar"))
-        self.assertEqual((node.tags[1].key, node.tags[1].value), ("name", "test"))
+        self.assertEqual(node.tags["name"], "test")
+        self.assertEqual(node.tags["foo"], "bar")
 
     def test_create_way_with_nodes(self):
         # Create way and nodes
@@ -129,8 +128,7 @@ class OSMAlchemyModelTests(object):
                      self.osmalchemy.Node(51.2, 7.2),
                      self.osmalchemy.Node(51.3, 7.3),
                      self.osmalchemy.Node(51.4, 7.4)]
-        way.tags = [self.osmalchemy.Tag("name", "Testway"),
-                    self.osmalchemy.Tag("foo", "bar")]
+        way.tags = {"name": "Testway", "foo": "bar"}
 
         # Store everything
         self.session.add(way)
@@ -145,8 +143,8 @@ class OSMAlchemyModelTests(object):
         self.assertEqual((way.nodes[3].latitude, way.nodes[3].longitude), (51.3, 7.3))
         self.assertEqual((way.nodes[4].latitude, way.nodes[4].longitude), (51.4, 7.4))
         self.assertEqual(len(way.tags), 2)
-        self.assertEqual((way.tags[0].key, way.tags[0].value), ("foo", "bar"))
-        self.assertEqual((way.tags[1].key, way.tags[1].value), ("name", "Testway"))
+        self.assertEqual(way.tags["name"], "Testway")
+        self.assertEqual(way.tags["foo"], "bar")
 
     def test_create_way_with_nodes_and_tags_and_tags_on_node(self):
         # Create way and nodes
@@ -156,10 +154,8 @@ class OSMAlchemyModelTests(object):
                      self.osmalchemy.Node(51.2, 7.2),
                      self.osmalchemy.Node(51.3, 7.3),
                      self.osmalchemy.Node(51.4, 7.4)]
-        way.tags = [self.osmalchemy.Tag("name", "Testway"),
-                    self.osmalchemy.Tag("foo", "bar")]
-        way.nodes[2].tags = [self.osmalchemy.Tag("name", "Testampel"),
-                             self.osmalchemy.Tag("foo", "bar")]
+        way.tags = {"name": "Testway", "foo": "bar"}
+        way.nodes[2].tags = {"name": "Testampel", "foo": "bar"}
 
         # Store everything
         self.session.add(way)
@@ -174,13 +170,11 @@ class OSMAlchemyModelTests(object):
         self.assertEqual((way.nodes[3].latitude, way.nodes[3].longitude), (51.3, 7.3))
         self.assertEqual((way.nodes[4].latitude, way.nodes[4].longitude), (51.4, 7.4))
         self.assertEqual(len(way.tags), 2)
-        self.assertEqual((way.tags[0].key, way.tags[0].value), ("foo", "bar"))
-        self.assertEqual((way.tags[1].key, way.tags[1].value), ("name", "Testway"))
+        self.assertEqual(way.tags["name"], "Testway")
+        self.assertEqual(way.tags["foo"], "bar")
         self.assertEqual(len(way.nodes[2].tags), 2)
-        self.assertEqual((way.nodes[2].tags[0].key, way.nodes[2].tags[0].value), ("foo", "bar"))
-        self.assertEqual((way.nodes[2].tags[1].key, way.nodes[2].tags[1].value), ("name", "Testampel"))
-        self.assertIsNot(way.tags[0], way.nodes[2].tags[0])
-        self.assertIsNot(way.tags[1], way.nodes[2].tags[1])
+        self.assertEqual(way.nodes[2].tags["name"], "Testampel")
+        self.assertEqual(way.nodes[2].tags["foo"], "bar")
 
     def test_create_relation_with_nodes(self):
         # Create way and add nodes

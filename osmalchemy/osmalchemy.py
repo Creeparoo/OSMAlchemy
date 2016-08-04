@@ -12,7 +12,8 @@ from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 class OSMAlchemy(object):
     """ Wrapper class for the OSMAlchemy model """
@@ -45,7 +46,8 @@ class OSMAlchemy(object):
             updated = Column(DateTime, default=datetime.datetime.now,
                              onupdate=datetime.datetime.now)
             type = Column(String(256))
-            tags = relationship('OSMTag', secondary=prefix+'elements_tags', order_by='OSMTag.key')
+            tags = association_proxy(prefix+"elements_tags", "tag_value",
+                                     creator=lambda k, v: OSMElementsTags(tag_key=k, tag_value=v))
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'elements',
@@ -122,6 +124,13 @@ class OSMAlchemy(object):
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'))
             tag_id = Column(Integer, ForeignKey(prefix + 'tags.tag_id'))
 
+            element = relationship("OSMElement", foreign_keys=[element_id],
+                                   backref=backref(prefix+"elements_tags",
+                                                   collection_class=attribute_mapped_collection("tag_key"),
+                                                   cascade="all, delete-orphan"))
+            tag = relationship("OSMTag", foreign_keys=[tag_id])
+            tag_key = association_proxy("tag", "key")
+            tag_value = association_proxy("tag", "value")
 
         class OSMRelationsElements(base):
             """ Secondary mapping table for relation members """
