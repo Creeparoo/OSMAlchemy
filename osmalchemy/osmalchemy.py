@@ -45,7 +45,7 @@ class OSMAlchemy(object):
             updated = Column(DateTime, default=datetime.datetime.now,
                              onupdate=datetime.datetime.now)
             type = Column(String(256))
-            tags = relationship('OSMTag', secondary=prefix+'elements_tags')
+            tags = relationship('OSMTag', secondary=prefix+'elements_tags', order_by='OSMTag.key')
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'elements',
