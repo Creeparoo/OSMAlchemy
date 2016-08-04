@@ -10,6 +10,8 @@ not historic data.
 import datetime
 from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.orm import relationship
 
 class OSMAlchemy(object):
@@ -121,7 +123,11 @@ class OSMAlchemy(object):
             map_id = Column(Integer, primary_key=True)
             relation_id = Column(Integer, ForeignKey(prefix + 'relations.element_id'))
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'))
+            position = Column(Integer)
             role = Column(String(256))
+
+            relation = relationship("OSMRelation", foreign_keys=[relation_id])
+            element = relationship("OSMElement", foreign_keys=[element_id])
 
         class OSMRelation(OSMElement):
             """ An OSM relation element.
@@ -134,7 +140,11 @@ class OSMAlchemy(object):
 
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                                 primary_key=True)
-            members = relationship("OSMElement", secondary=prefix+"relations_elements")
+            _members = relationship("OSMRelationsElements",
+                                    order_by="OSMRelationsElements.position",
+                                    collection_class=ordering_list("position"))
+            members = association_proxy("_members", "element",
+                                        creator=lambda _m: OSMRelationsElements(element=_m))
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'relations',
