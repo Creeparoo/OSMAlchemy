@@ -336,4 +336,4 @@ class OSMAlchemyModelTestsMySQL(OSMAlchemyModelTests, unittest.TestCase):
 
 # Make runnable as standalone script
 if __name__ == "__main__":
-    unittest.run()
+    unittest.main()
