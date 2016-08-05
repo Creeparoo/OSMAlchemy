@@ -106,9 +106,9 @@ class OSMAlchemyUtilTests(object):
         nodes = self.session.query(self.osmalchemy.Node).all()
         ways = self.session.query(self.osmalchemy.Way).all()
         relationss = self.session.query(self.osmalchemy.Relation).all()
-        self.assertEqual(len(nodes), 7518)
-        self.assertEqual(len(ways), 1559)
-        self.assertEqual(len(relations), 33)
+        self.assertGreaterEqual(len(nodes), 7518)
+        self.assertGreaterEqual(len(ways), 1559)
+        self.assertGreaterEqual(len(relations), 33)
 
         # Try to retrieve some node and make checks on it
         haltestelle = self.session.query(self.osmalchemy.Node).filter_by(id=252714572).one()
