@@ -33,7 +33,8 @@ not historic data.
 """
 
 import datetime
-from sqlalchemy import Column, ForeignKey, Integer, BigInteger, Float, String, DateTime, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, BigInteger, Float, String, DateTime, Boolean,
+                       UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
@@ -108,9 +109,12 @@ def _generate_model(base, prefix="osm_"):
         visible = Column(Boolean)
         timestamp = Column(DateTime)
 
+        # OSM ids are unique per type
+        _u_type_id = UniqueConstraint("type", "id")
+
         # Configure polymorphism
         __mapper_args__ = {
-            'polymorphic_identity': __tablename__,
+            'polymorphic_identity': 'element',
             'polymorphic_on': type,
             'with_polymorphic': '*'
         }
@@ -164,7 +168,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': __tablename__,
+            'polymorphic_identity': 'node',
         }
 
         def __init__(self, latitude=0.0, longitude=0.0, **kwargs):
@@ -222,7 +226,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': __tablename__,
+            'polymorphic_identity': 'way',
         }
 
     class OSMRelationsElements(base):
@@ -277,7 +281,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': __tablename__,
+            'polymorphic_identity': 'relation',
         }
 
     # Return the relevant generated objects
