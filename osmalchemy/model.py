@@ -33,8 +33,8 @@ not historic data.
 """
 
 import datetime
-from sqlalchemy import (Column, ForeignKey, Integer, BigInteger, Float, String, DateTime, Boolean,
-                        UniqueConstraint)
+from sqlalchemy import (Column, ForeignKey, Integer, BigInteger, Numeric, String, Unicode,
+                        DateTime, Boolean, UniqueConstraint)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
@@ -58,11 +58,11 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "tags"
 
         # The internal ID of the element, only for structural use
-        tag_id = Column(BigInteger, primary_key=True)
+        tag_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
 
         # Key/value pair
-        key = Column(String(256))
-        value = Column(String(256))
+        key = Column(Unicode(256))
+        value = Column(Unicode(256))
 
         def __init__(self, key="", value="", **kwargs):
             """ Initialisation with two main positional arguments.
@@ -83,7 +83,7 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "elements"
 
         # The internal ID of the element, only for structural use
-        element_id = Column(BigInteger, primary_key=True)
+        element_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
 
         # Track element modification for OSMAlchemy caching
         osmalchemy_updated = Column(DateTime, default=datetime.datetime.now,
@@ -104,7 +104,7 @@ def _generate_model(base, prefix="osm_"):
         # Metadata shared by all element types
         version = Column(Integer)
         changeset = Column(BigInteger)
-        user = Column(String(256))
+        user = Column(Unicode(256))
         uid = Column(BigInteger)
         visible = Column(Boolean)
         timestamp = Column(DateTime)
@@ -126,11 +126,13 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "elements_tags"
 
         # Internal ID of the mapping, only for structural use
-        map_id = Column(BigInteger, primary_key=True)
+        map_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
 
         # Foreign key columns for the element and tag of the mapping
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'))
-        tag_id = Column(BigInteger, ForeignKey(prefix + 'tags.tag_id'))
+        element_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                            ForeignKey(prefix + 'elements.element_id'))
+        tag_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                        ForeignKey(prefix + 'tags.tag_id'))
 
         # Relationship with all the tags mapped to the element
         # The backref is the counter-part to the tags association proxy
@@ -158,20 +160,20 @@ def _generate_model(base, prefix="osm_"):
 
         # The internal ID of the element, only for structural use
         # Synchronised with the id of the parent table OSMElement through polymorphism
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'),
-                            primary_key=True)
+        element_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                            ForeignKey(prefix + 'elements.element_id'), primary_key=True)
 
 
         # Geographical coordinates of the node
-        latitude = Column(Float, nullable=False)
-        longitude = Column(Float, nullable=False)
+        latitude = Column(Numeric(precision="9,7", asdecimal=False))
+        longitude = Column(Numeric(precision="10,7", asdecimal=False))
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
             'polymorphic_identity': 'node',
         }
 
-        def __init__(self, latitude=0.0, longitude=0.0, **kwargs):
+        def __init__(self, latitude=None, longitude=None, **kwargs):
             """ Initialisation with two main positional arguments.
 
             Shorthand for OSMNode(lat, lon).
@@ -190,11 +192,13 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "ways_nodes"
 
         # Internal ID of the mapping, only for structural use
-        map_id = Column(BigInteger, primary_key=True)
+        map_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
 
         # Foreign key columns for the connected way and node
-        way_id = Column(BigInteger, ForeignKey(prefix + 'ways.element_id'))
-        node_id = Column(BigInteger, ForeignKey(prefix + 'nodes.element_id'))
+        way_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                        ForeignKey(prefix + 'ways.element_id'))
+        node_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                         ForeignKey(prefix + 'nodes.element_id'))
         # Relationships for proxy access
         node = relationship(OSMNode, foreign_keys=[node_id])
 
@@ -213,8 +217,8 @@ def _generate_model(base, prefix="osm_"):
 
         # The internal ID of the element, only for structural use
         # Synchronised with the id of the parent table OSMElement through polymorphism
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'),
-                            primary_key=True)
+        element_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                            ForeignKey(prefix + 'elements.element_id'), primary_key=True)
 
         # Relationship with all nodes in the way
         # Uses association proxy and a collection class to maintain an ordered list,
@@ -236,16 +240,18 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "relations_elements"
 
         # Internal ID of the mapping, only for structural use
-        map_id = Column(BigInteger, primary_key=True)
+        map_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
 
         # Foreign ley columns for the relation and other element of the mapping
-        relation_id = Column(BigInteger, ForeignKey(prefix + 'relations.element_id'))
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'))
+        relation_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                             ForeignKey(prefix + 'relations.element_id'))
+        element_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                            ForeignKey(prefix + 'elements.element_id'))
         # Relationships for proxy access
         element = relationship(OSMElement, foreign_keys=[element_id])
 
         # Role of the element in the relationship
-        role = Column(String(256))
+        role = Column(Unicode(256))
 
         # Index of element in the relationship to maintain ordered list, structural use only
         position = Column(Integer)
@@ -267,8 +273,8 @@ def _generate_model(base, prefix="osm_"):
 
         # The internal ID of the element, only for structural use
         # Synchronised with the id of the parent table OSMElement through polymorphism
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'),
-                            primary_key=True)
+        element_id = Column(BigInteger().with_variant(Integer, "sqlite"),
+                            ForeignKey(prefix + 'elements.element_id'), primary_key=True)
 
         # Relationship to the members of the relationship, proxied across OSMRelationsElements
         _members = relationship(OSMRelationsElements,

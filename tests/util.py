@@ -105,7 +105,7 @@ class OSMAlchemyUtilTests(object):
         # Check number of elements
         nodes = self.session.query(self.osmalchemy.Node).all()
         ways = self.session.query(self.osmalchemy.Way).all()
-        relationss = self.session.query(self.osmalchemy.Relation).all()
+        relations = self.session.query(self.osmalchemy.Relation).all()
         self.assertGreaterEqual(len(nodes), 7518)
         self.assertGreaterEqual(len(ways), 1559)
         self.assertGreaterEqual(len(relations), 33)
@@ -130,10 +130,10 @@ class OSMAlchemyUtilTests(object):
         self.assertEqual(doppelkirche.id, 83296962)
         self.assertEqual(doppelkirche.visible, True)
         # Verify some tags
-        self.assertEqual(doppelkirche.tags["name"], "St. Maria und St. Clemens Doppelkirche")
-        self.assertEqual(doppelkirche.tags["historic"], "church")
-        self.assertEqual(doppelkirche.tags["wheelchair"], "limited")
-        self.assertEqual(doppelkirche.tags["addr:street"], "Dixstraße")
+        self.assertEqual(doppelkirche.tags["name"], u"St. Maria und St. Clemens Doppelkirche")
+        self.assertEqual(doppelkirche.tags["historic"], u"church")
+        self.assertEqual(doppelkirche.tags["wheelchair"], u"limited")
+        self.assertEqual(doppelkirche.tags["addr:street"], u"Dixstraße")
         # verify nodes on way
         nodes = (969195704, 969195706, 1751820961, 969195708, 969195710, 969195712,
                  969195714, 969195719, 969195720, 969195721, 969195722, 969218813,
@@ -145,9 +145,9 @@ class OSMAlchemyUtilTests(object):
             # Verify existence
             self.assertIn(nd, doppelkirche.nodes)
             # Verify ordering
-            self.assertIs(doppelkirche.nodes[nodes.indexOf(ref)], nd)
+            self.assertIs(doppelkirche.nodes[nodes.index(ref)], nd)
         # Cross-check other nodes are not in way
-        for ref in set(26853096, 26853100, 247056873):
+        for ref in (26853096, 26853100, 247056873):
             nd = self.session.query(self.osmalchemy.Node).filter_by(id=ref).one()
             self.assertNotIn(nd, doppelkirche.nodes)
 
@@ -155,17 +155,17 @@ class OSMAlchemyUtilTests(object):
         buslinie = self.session.query(self.osmalchemy.Relation).filter_by(id=1823975).one()
         # Check metadata
         self.assertEqual(buslinie.id, 1823975)
-        self.assertEqual(busline.changeset, 40638463)
+        self.assertEqual(buslinie.changeset, 40638463)
         # Check tags
-        self.assertEqual(busline.tags["name"], "VRS 640 Siegburg")
-        self.assertEqual(busline.tags["ref"], "640")
-        self.assertEqual(busline.tags["type"], "route")
-        self.assertEqual(busline.tags["route"], "bus")
+        self.assertEqual(buslinie.tags["name"], u"VRS 640 Siegburg")
+        self.assertEqual(buslinie.tags["ref"], u"640")
+        self.assertEqual(buslinie.tags["type"], u"route")
+        self.assertEqual(buslinie.tags["route"], u"bus")
         # Check members
         self.assertIn((haltestelle, "stop"), buslinie.members)
-        self.assertEqual(busline.members.indexOf((haltestelle, "stop")), 16)
+        self.assertEqual(list(buslinie.members).index((haltestelle, u"stop")), 16)
         self.assertIn((wittestr, ""), buslinie.members)
-        self.assertEqual(busline.members.indexOf((wittestr, "")), 109)
+        self.assertEqual(list(buslinie.members).index((wittestr, "")), 109)
 
 class OSMAlchemyUtilTestsSQLite(OSMAlchemyUtilTests, unittest.TestCase):
     """ Tests run with SQLite """
@@ -194,7 +194,7 @@ class OSMAlchemyUtilTestsMySQL(OSMAlchemyUtilTests, unittest.TestCase):
 
     def setUp(self):
         self.mysql = Mysqld()
-        self.engine = create_engine(self.mysql.url())
+        self.engine = create_engine(self.mysql.url() + "?charset=utf8mb4")
         OSMAlchemyUtilTests.setUp(self)
 
     def tearDown(self):

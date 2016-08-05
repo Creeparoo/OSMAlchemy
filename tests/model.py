@@ -327,7 +327,7 @@ class OSMAlchemyModelTestsMySQL(OSMAlchemyModelTests, unittest.TestCase):
 
     def setUp(self):
         self.mysql = Mysqld()
-        self.engine = create_engine(self.mysql.url())
+        self.engine = create_engine(self.mysql.url() + "?charset=utf8mb4")
         OSMAlchemyModelTests.setUp(self)
 
     def tearDown(self):
