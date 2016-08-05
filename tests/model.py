@@ -179,11 +179,11 @@ class OSMAlchemyModelTests(object):
     def test_create_relation_with_nodes(self):
         # Create way and add nodes
         relation = self.osmalchemy.Relation()
-        relation.members = [self.osmalchemy.Node(51.0, 7.0),
-                            self.osmalchemy.Node(51.1, 7.1),
-                            self.osmalchemy.Node(51.2, 7.2),
-                            self.osmalchemy.Node(51.3, 7.3),
-                            self.osmalchemy.Node(51.4, 7.4)]
+        relation.members = [(self.osmalchemy.Node(51.0, 7.0), ""),
+                            (self.osmalchemy.Node(51.1, 7.1), ""),
+                            (self.osmalchemy.Node(51.2, 7.2), ""),
+                            (self.osmalchemy.Node(51.3, 7.3), ""),
+                            (self.osmalchemy.Node(51.4, 7.4), "")]
 
         # Store everything
         self.session.add(relation)
@@ -191,30 +191,30 @@ class OSMAlchemyModelTests(object):
 
         # Query for way and check
         relation = self.session.query(self.osmalchemy.Relation).first()
-        self.assertEqual((relation.members[0].latitude, relation.members[0].longitude),
+        self.assertEqual((relation.members[0][0].latitude, relation.members[0][0].longitude),
                          (51.0, 7.0))
-        self.assertEqual((relation.members[1].latitude, relation.members[1].longitude),
+        self.assertEqual((relation.members[1][0].latitude, relation.members[1][0].longitude),
                          (51.1, 7.1))
-        self.assertEqual((relation.members[2].latitude, relation.members[2].longitude),
+        self.assertEqual((relation.members[2][0].latitude, relation.members[2][0].longitude),
                          (51.2, 7.2))
-        self.assertEqual((relation.members[3].latitude, relation.members[3].longitude),
+        self.assertEqual((relation.members[3][0].latitude, relation.members[3][0].longitude),
                          (51.3, 7.3))
-        self.assertEqual((relation.members[4].latitude, relation.members[4].longitude),
+        self.assertEqual((relation.members[4][0].latitude, relation.members[4][0].longitude),
                          (51.4, 7.4))
 
     def test_create_relation_with_nodes_and_ways(self):
         # Create way and add nodes and ways
         relation = self.osmalchemy.Relation()
-        relation.members = [self.osmalchemy.Node(51.0, 7.0),
-                            self.osmalchemy.Way(),
-                            self.osmalchemy.Node(51.1, 7.1),
-                            self.osmalchemy.Way(),
-                            self.osmalchemy.Node(51.2, 7.2),
-                            self.osmalchemy.Way(),
-                            self.osmalchemy.Node(51.3, 7.3),
-                            self.osmalchemy.Way(),
-                            self.osmalchemy.Node(51.4, 7.4)]
-        relation.members[3].nodes.append(relation.members[8])
+        relation.members = [(self.osmalchemy.Node(51.0, 7.0), ''),
+                            (self.osmalchemy.Way(), ''),
+                            (self.osmalchemy.Node(51.1, 7.1), ''),
+                            (self.osmalchemy.Way(), ''),
+                            (self.osmalchemy.Node(51.2, 7.2), ''),
+                            (self.osmalchemy.Way(), ''),
+                            (self.osmalchemy.Node(51.3, 7.3), ''),
+                            (self.osmalchemy.Way(), ''),
+                            (self.osmalchemy.Node(51.4, 7.4), '')]
+        relation.members[3][0].nodes.append(relation.members[8][0])
 
         # Store everything
         self.session.add(relation)
@@ -222,34 +222,34 @@ class OSMAlchemyModelTests(object):
 
         # Query for way and check
         relation = self.session.query(self.osmalchemy.Relation).first()
-        self.assertEqual((relation.members[0].latitude, relation.members[0].longitude),
+        self.assertEqual((relation.members[0][0].latitude, relation.members[0][0].longitude),
                          (51.0, 7.0))
-        self.assertEqual((relation.members[2].latitude, relation.members[2].longitude),
+        self.assertEqual((relation.members[2][0].latitude, relation.members[2][0].longitude),
                          (51.1, 7.1))
-        self.assertEqual((relation.members[4].latitude, relation.members[4].longitude),
+        self.assertEqual((relation.members[4][0].latitude, relation.members[4][0].longitude),
                          (51.2, 7.2))
-        self.assertEqual((relation.members[6].latitude, relation.members[6].longitude),
+        self.assertEqual((relation.members[6][0].latitude, relation.members[6][0].longitude),
                          (51.3, 7.3))
-        self.assertEqual((relation.members[8].latitude, relation.members[8].longitude),
+        self.assertEqual((relation.members[8][0].latitude, relation.members[8][0].longitude),
                          (51.4, 7.4))
-        self.assertIs(relation.members[3].nodes[0], relation.members[8])
+        self.assertIs(relation.members[3][0].nodes[0], relation.members[8][0])
 
     def test_create_relation_with_nodes_and_ways_and_tags_everywhere(self):
         # Create way and add nodes and ways
         relation = self.osmalchemy.Relation()
-        relation.members = [self.osmalchemy.Node(51.0, 7.0),
-                            self.osmalchemy.Way(),
-                            self.osmalchemy.Node(51.1, 7.1),
-                            self.osmalchemy.Way(),
-                            self.osmalchemy.Node(51.2, 7.2),
-                            self.osmalchemy.Way(),
-                            self.osmalchemy.Node(51.3, 7.3),
-                            self.osmalchemy.Way(),
-                            self.osmalchemy.Node(51.4, 7.4)]
+        relation.members = [(self.osmalchemy.Node(51.0, 7.0), ''),
+                            (self.osmalchemy.Way(), ''),
+                            (self.osmalchemy.Node(51.1, 7.1), ''),
+                            (self.osmalchemy.Way(), ''),
+                            (self.osmalchemy.Node(51.2, 7.2), ''),
+                            (self.osmalchemy.Way(), ''),
+                            (self.osmalchemy.Node(51.3, 7.3), ''),
+                            (self.osmalchemy.Way(), ''),
+                            (self.osmalchemy.Node(51.4, 7.4), '')]
         relation.tags = {"name": "weirdest roads in Paris"}
-        relation.members[3].nodes.append(relation.members[8])
-        relation.members[7].tags = {"foo": "bar", "bang": "baz"}
-        relation.members[8].tags = {"name": "Doppelknoten"}
+        relation.members[3][0].nodes.append(relation.members[8][0])
+        relation.members[7][0].tags = {"foo": "bar", "bang": "baz"}
+        relation.members[8][0].tags = {"name": "Doppelknoten"}
 
         # Store everything
         self.session.add(relation)
@@ -257,21 +257,21 @@ class OSMAlchemyModelTests(object):
 
         # Query for way and check
         relation = self.session.query(self.osmalchemy.Relation).first()
-        self.assertEqual((relation.members[0].latitude, relation.members[0].longitude),
+        self.assertEqual((relation.members[0][0].latitude, relation.members[0][0].longitude),
                          (51.0, 7.0))
-        self.assertEqual((relation.members[2].latitude, relation.members[2].longitude),
+        self.assertEqual((relation.members[2][0].latitude, relation.members[2][0].longitude),
                          (51.1, 7.1))
-        self.assertEqual((relation.members[4].latitude, relation.members[4].longitude),
+        self.assertEqual((relation.members[4][0].latitude, relation.members[4][0].longitude),
                          (51.2, 7.2))
-        self.assertEqual((relation.members[6].latitude, relation.members[6].longitude),
+        self.assertEqual((relation.members[6][0].latitude, relation.members[6][0].longitude),
                          (51.3, 7.3))
-        self.assertEqual((relation.members[8].latitude, relation.members[8].longitude),
+        self.assertEqual((relation.members[8][0].latitude, relation.members[8][0].longitude),
                          (51.4, 7.4))
-        self.assertIs(relation.members[3].nodes[0], relation.members[8])
+        self.assertIs(relation.members[3][0].nodes[0], relation.members[8][0])
         self.assertEqual(relation.tags["name"], "weirdest roads in Paris")
-        self.assertEqual(relation.members[7].tags["foo"], "bar")
-        self.assertEqual(relation.members[7].tags["bang"], "baz")
-        self.assertEqual(relation.members[8].tags, relation.members[3].nodes[0].tags)
+        self.assertEqual(relation.members[7][0].tags["foo"], "bar")
+        self.assertEqual(relation.members[7][0].tags["bang"], "baz")
+        self.assertEqual(relation.members[8][0].tags, relation.members[3][0].nodes[0].tags)
 
 class OSMAlchemyModelTestsSQLite(OSMAlchemyModelTests, unittest.TestCase):
     """ Tests run with SQLite """

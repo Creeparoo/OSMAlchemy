@@ -146,6 +146,10 @@ class OSMAlchemy(object):
             relation = relationship("OSMRelation", foreign_keys=[relation_id])
             element = relationship("OSMElement", foreign_keys=[element_id])
 
+            @property
+            def role_tuple(self):
+                return (self.element, self.role)
+
         class OSMRelation(OSMElement):
             """ An OSM relation element.
 
@@ -160,8 +164,9 @@ class OSMAlchemy(object):
             _members = relationship("OSMRelationsElements",
                                     order_by="OSMRelationsElements.position",
                                     collection_class=ordering_list("position"))
-            members = association_proxy("_members", "element",
-                                        creator=lambda _m: OSMRelationsElements(element=_m))
+            members = association_proxy("_members", "role_tuple",
+                                        creator=lambda _m: OSMRelationsElements(element=_m[0],
+                                                                                role=_m[1]))
 
             __mapper_args__ = {
                 'polymorphic_identity': prefix + 'relations',
