@@ -8,7 +8,7 @@ not historic data.
 """
 
 import datetime
-from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime, Bool
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
@@ -53,8 +53,8 @@ class OSMAlchemy(object):
             element_id = Column(Integer, primary_key=True)
 
             # Track element modification for OSMAlchemy caching
-            updated = Column(DateTime, default=datetime.datetime.now,
-                             onupdate=datetime.datetime.now)
+            osmalchemy_updated = Column(DateTime, default=datetime.datetime.now,
+                                        onupdate=datetime.datetime.now)
 
             # The type of the element, used by SQLAlchemy for polymorphism
             type = Column(String(256))
@@ -64,6 +64,14 @@ class OSMAlchemy(object):
             # Uses proxying across several tables to OSMTag
             tags = association_proxy(prefix+"elements_tags", "tag_value",
                                      creator=lambda k, v: OSMElementsTags(tag_key=k, tag_value=v))
+
+            # Metadata shared by all element types
+            version = Column(Integer)
+            changeset = Column(Integer)
+            user = Column(String)
+            uid = Column(Integer)
+            visible = Column(Bool)
+            timestamp = Column(DateTime)
 
             # Configure polymorphism
             __mapper_args__ = {
@@ -86,6 +94,9 @@ class OSMAlchemy(object):
             # Synchronised with the id of the parent table OSMElement through polymorphism
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                                 primary_key=True)
+
+            # ID of the node, not to be confused with the primary key from OSMElements
+            id = Column(Integer, unique=True)
 
             # Geographical coordinates of the node
             latitude = Column(Float, nullable=False)
@@ -141,6 +152,9 @@ class OSMAlchemy(object):
             # Synchronised with the id of the parent table OSMElement through polymorphism
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                                 primary_key=True)
+
+            # ID of the way, not to be confused with the primary key from OSMElements
+            id = Column(Integer, unique=True)
 
             # Relationship with all nodes in the way
             # Uses association proxy and a collection class to maintain an ordered list,
@@ -223,6 +237,10 @@ class OSMAlchemy(object):
             # Synchronised with the id of the parent table OSMElement through polymorphism
             element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                                 primary_key=True)
+
+
+            # ID of the relation, not to be confused with the primary key from OSMElements
+            id = Column(Integer, unique=True)
 
             # Relationship to the members of the relationship, proxied across OSMRelationsElements
             _members = relationship("OSMRelationsElements",
