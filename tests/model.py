@@ -304,7 +304,7 @@ class OSMAlchemyModelTestsSQLite(OSMAlchemyModelTests, unittest.TestCase):
     """ Tests run with SQLite """
 
     def setUp(self):
-        self.engine = create_engine("sqlite:///:memory:", echo=True)
+        self.engine = create_engine("sqlite:///:memory:")
         OSMAlchemyModelTests.setUp(self)
 
     def tearDown(self):
@@ -315,7 +315,7 @@ class OSMAlchemyModelTestsPostgres(OSMAlchemyModelTests, unittest.TestCase):
 
     def setUp(self):
         self.postgresql = Postgresql()
-        self.engine = create_engine(self.postgresql.url(), echo=True)
+        self.engine = create_engine(self.postgresql.url())
         OSMAlchemyModelTests.setUp(self)
 
     def tearDown(self):
@@ -327,7 +327,7 @@ class OSMAlchemyModelTestsMySQL(OSMAlchemyModelTests, unittest.TestCase):
 
     def setUp(self):
         self.mysql = Mysqld()
-        self.engine = create_engine(self.mysql.url(), echo=True)
+        self.engine = create_engine(self.mysql.url())
         OSMAlchemyModelTests.setUp(self)
 
     def tearDown(self):
