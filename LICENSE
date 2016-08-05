@@ -19,7 +19,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-
 Alternatively, you are free to use OSMAlchemy under Simplified BSD, The
 MirOS Licence, GPL-2+, LGPL-2.1+, AGPL-3+ or the same terms as Python
 itself.
+
+
+Exception for any OpenStreetMap data in this source repository, e.g.
+test data:
+
+ © OpenStreetMap contributors, licensed under the Open Data Commons Open
+ Database License (ODbL).
+
+You are free to copy, distribute, transmit and adapt our data, as long
+as you credit OpenStreetMap and its contributors. If you alter or build
+upon our data, you may distribute the result only under the same
+licence. The full legal code explains your rights and responsibilities.
