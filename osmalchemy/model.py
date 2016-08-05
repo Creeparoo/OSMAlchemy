@@ -33,8 +33,8 @@ not historic data.
 """
 
 import datetime
-from sqlalchemy import Column, ForeignKey, Integer, BigInteger, Float, String, DateTime, Boolean,
-                       UniqueConstraint
+from sqlalchemy import (Column, ForeignKey, Integer, BigInteger, Float, String, DateTime, Boolean,
+                        UniqueConstraint)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
