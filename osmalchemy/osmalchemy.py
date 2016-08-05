@@ -8,7 +8,7 @@ not historic data.
 """
 
 import datetime
-from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime, Bool
+from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
@@ -68,9 +68,9 @@ class OSMAlchemy(object):
             # Metadata shared by all element types
             version = Column(Integer)
             changeset = Column(Integer)
-            user = Column(String)
+            user = Column(String(256))
             uid = Column(Integer)
-            visible = Column(Bool)
+            visible = Column(Boolean)
             timestamp = Column(DateTime)
 
             # Configure polymorphism
