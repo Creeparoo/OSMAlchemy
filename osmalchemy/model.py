@@ -33,7 +33,7 @@ not historic data.
 """
 
 import datetime
-from sqlalchemy import Column, ForeignKey, Integer, BigInteger, Float, String, DateTime, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, Float, String, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
@@ -57,7 +57,7 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "tags"
 
         # The internal ID of the element, only for structural use
-        tag_id = Column(BigInteger, primary_key=True)
+        tag_id = Column(Integer, primary_key=True)
 
         # Key/value pair
         key = Column(String(256))
@@ -82,7 +82,7 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "elements"
 
         # The internal ID of the element, only for structural use
-        element_id = Column(BigInteger, primary_key=True)
+        element_id = Column(Integer, primary_key=True)
 
         # Track element modification for OSMAlchemy caching
         osmalchemy_updated = Column(DateTime, default=datetime.datetime.now,
@@ -92,7 +92,7 @@ def _generate_model(base, prefix="osm_"):
         type = Column(String(256))
 
         # ID of the element in OSM, not to be confused with the primary key element_id
-        id = Column(BigInteger)
+        id = Column(Integer)
 
         # Tags belonging to the element
         # Accessed as a dictionary like {'name': 'value', 'name2': 'value2',…}
@@ -102,15 +102,15 @@ def _generate_model(base, prefix="osm_"):
 
         # Metadata shared by all element types
         version = Column(Integer)
-        changeset = Column(BigInteger)
+        changeset = Column(Integer)
         user = Column(String(256))
-        uid = Column(BigInteger)
+        uid = Column(Integer)
         visible = Column(Boolean)
         timestamp = Column(DateTime)
 
         # Configure polymorphism
         __mapper_args__ = {
-            'polymorphic_identity': __tablename__,
+            'polymorphic_identity': 'element',
             'polymorphic_on': type,
             'with_polymorphic': '*'
         }
@@ -122,11 +122,11 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "elements_tags"
 
         # Internal ID of the mapping, only for structural use
-        map_id = Column(BigInteger, primary_key=True)
+        map_id = Column(Integer, primary_key=True)
 
         # Foreign key columns for the element and tag of the mapping
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'))
-        tag_id = Column(BigInteger, ForeignKey(prefix + 'tags.tag_id'))
+        element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'))
+        tag_id = Column(Integer, ForeignKey(prefix + 'tags.tag_id'))
 
         # Relationship with all the tags mapped to the element
         # The backref is the counter-part to the tags association proxy
@@ -154,7 +154,7 @@ def _generate_model(base, prefix="osm_"):
 
         # The internal ID of the element, only for structural use
         # Synchronised with the id of the parent table OSMElement through polymorphism
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'),
+        element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                             primary_key=True)
 
 
@@ -164,7 +164,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': __tablename__,
+            'polymorphic_identity': 'node',
         }
 
         def __init__(self, latitude=0.0, longitude=0.0, **kwargs):
@@ -186,11 +186,11 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "ways_nodes"
 
         # Internal ID of the mapping, only for structural use
-        map_id = Column(BigInteger, primary_key=True)
+        map_id = Column(Integer, primary_key=True)
 
         # Foreign key columns for the connected way and node
-        way_id = Column(BigInteger, ForeignKey(prefix + 'ways.element_id'))
-        node_id = Column(BigInteger, ForeignKey(prefix + 'nodes.element_id'))
+        way_id = Column(Integer, ForeignKey(prefix + 'ways.element_id'))
+        node_id = Column(Integer, ForeignKey(prefix + 'nodes.element_id'))
         # Relationships for proxy access
         node = relationship(OSMNode, foreign_keys=[node_id])
 
@@ -209,7 +209,7 @@ def _generate_model(base, prefix="osm_"):
 
         # The internal ID of the element, only for structural use
         # Synchronised with the id of the parent table OSMElement through polymorphism
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'),
+        element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                             primary_key=True)
 
         # Relationship with all nodes in the way
@@ -222,7 +222,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': __tablename__,
+            'polymorphic_identity': 'way',
         }
 
     class OSMRelationsElements(base):
@@ -232,11 +232,11 @@ def _generate_model(base, prefix="osm_"):
         __tablename__ = prefix + "relations_elements"
 
         # Internal ID of the mapping, only for structural use
-        map_id = Column(BigInteger, primary_key=True)
+        map_id = Column(Integer, primary_key=True)
 
         # Foreign ley columns for the relation and other element of the mapping
-        relation_id = Column(BigInteger, ForeignKey(prefix + 'relations.element_id'))
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'))
+        relation_id = Column(Integer, ForeignKey(prefix + 'relations.element_id'))
+        element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'))
         # Relationships for proxy access
         element = relationship(OSMElement, foreign_keys=[element_id])
 
@@ -263,7 +263,7 @@ def _generate_model(base, prefix="osm_"):
 
         # The internal ID of the element, only for structural use
         # Synchronised with the id of the parent table OSMElement through polymorphism
-        element_id = Column(BigInteger, ForeignKey(prefix + 'elements.element_id'),
+        element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                             primary_key=True)
 
         # Relationship to the members of the relationship, proxied across OSMRelationsElements
@@ -277,7 +277,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': __tablename__,
+            'polymorphic_identity': 'relation',
         }
 
     # Return the relevant generated objects
