@@ -100,7 +100,7 @@ class OSMAlchemyUtilTests(object):
         path = os.path.join(self.datadir, "schwarzrheindorf.osm")
 
         # Import data into model
-        self.osmalchemy.import_osm_file(path)
+        self.osmalchemy.import_osm_file(self.session, path)
 
         # Check number of elements
         nodes = self.session.query(self.osmalchemy.Node).all()
@@ -149,23 +149,23 @@ class OSMAlchemyUtilTests(object):
         # Cross-check other nodes are not in way
         for ref in set(26853096, 26853100, 247056873):
             nd = self.session.query(self.osmalchemy.Node).filter_by(id=ref).one()
-            self.assertNotIn(nd, doppelkieche.nodes)
+            self.assertNotIn(nd, doppelkirche.nodes)
 
-    # Try to retrieve some relation and make checks on it
-    buslinie = self.session.query(self.osmalchemy.Relation).filter_by(id=1823975).one()
-    # Check metadata
-    self.assertEqual(buslinie.id, 1823975)
-    self.assertEqual(busline.changeset, 40638463)
-    # Check tags
-    self.assertEqual(busline.tags["name"], "VRS 640 Siegburg")
-    self.assertEqual(busline.tags["ref"], "640")
-    self.assertEqual(busline.tags["type"], "route")
-    self.assertEqual(busline.tags["route"], "bus")
-    # Check members
-    self.assertIn((haltestelle, "stop"), buslinie.members)
-    self.assertEqual(busline.members.indexOf((haltestelle, "stop")), 16)
-    self.assertIn((wittestr, ""), buslinie.members)
-    self.assertEqual(busline.members.indexOf((wittestr, "")), 109)
+        # Try to retrieve some relation and make checks on it
+        buslinie = self.session.query(self.osmalchemy.Relation).filter_by(id=1823975).one()
+        # Check metadata
+        self.assertEqual(buslinie.id, 1823975)
+        self.assertEqual(busline.changeset, 40638463)
+        # Check tags
+        self.assertEqual(busline.tags["name"], "VRS 640 Siegburg")
+        self.assertEqual(busline.tags["ref"], "640")
+        self.assertEqual(busline.tags["type"], "route")
+        self.assertEqual(busline.tags["route"], "bus")
+        # Check members
+        self.assertIn((haltestelle, "stop"), buslinie.members)
+        self.assertEqual(busline.members.indexOf((haltestelle, "stop")), 16)
+        self.assertIn((wittestr, ""), buslinie.members)
+        self.assertEqual(busline.members.indexOf((wittestr, "")), 109)
 
 class OSMAlchemyUtilTestsSQLite(OSMAlchemyUtilTests, unittest.TestCase):
     """ Tests run with SQLite """
