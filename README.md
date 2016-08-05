@@ -69,6 +69,10 @@ OSMAlchemy is tested against the following SQLAlchemy backends:
  * PostgreSQL
  * MySQL
 
+However, we recommend PostgreSQL. MySQL acts strangely with some data
+and is incredibly slow, and SQLite just doesn't scale too well (however,
+it is incredibly fast, in comparison).
+
 ### Code status
 
 [![Build Status](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/build-status/master)
