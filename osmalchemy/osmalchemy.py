@@ -31,6 +31,7 @@ The classe encapsulates the model and accompanying logic.
 """
 
 from .model import _generate_model
+from .util import _import_osm_file
 
 class OSMAlchemy(object):
     """ Wrapper class for the OSMAlchemy model and logic
@@ -66,4 +67,8 @@ class OSMAlchemy(object):
         self._prefix = prefix
 
         # Generate model and store as instance members
-        self.Node, self.Way, self.Relation = _generate_model(self._base, self._prefix)
+        self.Node, self.Way, self.Relation, self.Element = _generate_model(self._base,
+                                                                           self._prefix)
+
+    def import_osm_file(self, path):
+        _import_osm_file(self, path)

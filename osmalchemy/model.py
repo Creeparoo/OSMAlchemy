@@ -91,6 +91,9 @@ def _generate_model(base, prefix="osm_"):
         # The type of the element, used by SQLAlchemy for polymorphism
         type = Column(String(256))
 
+        # ID of the element in OSM, not to be confused with the primary key element_id
+        id = Column(Integer)
+
         # Tags belonging to the element
         # Accessed as a dictionary like {'name': 'value', 'name2': 'value2',…}
         # Uses proxying across several tables to OSMTag
@@ -107,7 +110,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism
         __mapper_args__ = {
-            'polymorphic_identity': prefix + 'elements',
+            'polymorphic_identity': 'element',
             'polymorphic_on': type,
             'with_polymorphic': '*'
         }
@@ -154,8 +157,6 @@ def _generate_model(base, prefix="osm_"):
         element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                             primary_key=True)
 
-        # ID of the node, not to be confused with the primary key from OSMElements
-        id = Column(Integer, unique=True)
 
         # Geographical coordinates of the node
         latitude = Column(Float, nullable=False)
@@ -163,7 +164,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': prefix + 'nodes',
+            'polymorphic_identity': 'node',
         }
 
         def __init__(self, latitude=0.0, longitude=0.0, **kwargs):
@@ -211,9 +212,6 @@ def _generate_model(base, prefix="osm_"):
         element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                             primary_key=True)
 
-        # ID of the way, not to be confused with the primary key from OSMElements
-        id = Column(Integer, unique=True)
-
         # Relationship with all nodes in the way
         # Uses association proxy and a collection class to maintain an ordered list,
         # synchronised with the position field of OSMWaysNodes
@@ -224,7 +222,7 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': prefix + 'ways',
+            'polymorphic_identity': 'way',
         }
 
     class OSMRelationsElements(base):
@@ -268,10 +266,6 @@ def _generate_model(base, prefix="osm_"):
         element_id = Column(Integer, ForeignKey(prefix + 'elements.element_id'),
                             primary_key=True)
 
-
-        # ID of the relation, not to be confused with the primary key from OSMElements
-        id = Column(Integer, unique=True)
-
         # Relationship to the members of the relationship, proxied across OSMRelationsElements
         _members = relationship(OSMRelationsElements,
                                 order_by="OSMRelationsElements.position",
@@ -283,8 +277,8 @@ def _generate_model(base, prefix="osm_"):
 
         # Configure polymorphism with OSMElement
         __mapper_args__ = {
-            'polymorphic_identity': prefix + 'relations',
+            'polymorphic_identity': 'relation',
         }
 
     # Return the relevant generated objects
-    return (OSMNode, OSMWay, OSMRelation)
+    return (OSMNode, OSMWay, OSMRelation, OSMElement)
