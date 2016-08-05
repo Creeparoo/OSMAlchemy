@@ -70,5 +70,5 @@ class OSMAlchemy(object):
         self.Node, self.Way, self.Relation, self.Element = _generate_model(self._base,
                                                                            self._prefix)
 
-    def import_osm_file(self, path):
-        _import_osm_file(self, path)
+    def import_osm_file(self, session, path):
+        _import_osm_file(self, session, path)
