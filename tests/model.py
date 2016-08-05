@@ -333,3 +333,7 @@ class OSMAlchemyModelTestsMySQL(OSMAlchemyModelTests, unittest.TestCase):
     def tearDown(self):
         self.mysql.stop()
         OSMAlchemyModelTests.tearDown(self)
+
+# Make runnable as standalone script
+if __name__ == "__main__":
+    unittest.run()
