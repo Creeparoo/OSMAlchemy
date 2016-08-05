@@ -38,13 +38,13 @@ def _import_osm_dom(osma, session, dom):
 
     def _dom_attrs_to_any(e, element):
         if "version" in e.attributes.keys():
-            element.version = e.attributes["version"].value
+            element.version = int(e.attributes["version"].value)
         if "changeset" in e.attributes.keys():
-            element.changeset = e.attributes["changeset"].value
+            element.changeset = int(e.attributes["changeset"].value)
         if "user" in e.attributes.keys():
             element.user = e.attributes["user"].value
         if "uid" in e.attributes.keys():
-            element.uid = e.attributes["uid"].value
+            element.uid = int(e.attributes["uid"].value)
         if "visible" in e.attributes.keys():
             element.visible = True if e.attributes["visible"].value == "true" else False
         if "timestamp" in e.attributes.keys():
@@ -63,77 +63,95 @@ def _import_osm_dom(osma, session, dom):
         element.tags = tags
 
     def _dom_to_node(e):
-        # Get mandatory node id
-        id = e.attributes["id"].value
+        with session.no_autoflush:
+            # Get mandatory node id
+            id = int(e.attributes["id"].value)
 
-        # Find object in database and create if non-existent
-        node = session.query(osma.Node).filter_by(id=id).scalar()
-        if node is None:
-            node = osma.Node(id=id)
+            # Find object in database and create if non-existent
+            node = session.query(osma.Node).filter_by(id=id).scalar()
+            if node is None:
+                node = osma.Node(id=id)
 
-        # Store mandatory latitude and longitude
-        node.latitude = e.attributes["lat"].value
-        node.longitude = e.attributes["lon"].value
+            # Store mandatory latitude and longitude
+            node.latitude = e.attributes["lat"].value
+            node.longitude = e.attributes["lon"].value
 
-        # Store other attributes and tags
-        _dom_attrs_to_any(e, node)
-        _dom_tags_to_any(e, node)
+            # Store other attributes and tags
+            _dom_attrs_to_any(e, node)
+            _dom_tags_to_any(e, node)
 
         # Add to session
         session.add(node)
+        session.commit()
 
     def _dom_to_way(e):
-        # Get mandatory way id
-        id = e.attributes["id"].value
+        with session.no_autoflush:
+            # Get mandatory way id
+            id = int(e.attributes["id"].value)
 
-        # Find object in database and create if non-existent
-        way = session.query(osma.Way).filter_by(id=id).scalar()
-        if way is None:
-            way = osma.Way(id=id)
+            # Find object in database and create if non-existent
+            way = session.query(osma.Way).filter_by(id=id).scalar()
+            if way is None:
+                way = osma.Way(id=id)
 
-        # Find all related nodes
-        for n in e.getElementsByTagName("nd"):
-            # Get node id and find object
-            nid = n.attributes["ref"].value
-            node = session.query(osma.Node).filter_by(id=nid).one()
-            # Append to nodes in way
-            way.nodes.append(node)
+            # Find all related nodes
+            for n in e.getElementsByTagName("nd"):
+                # Get node id and find object
+                ref = int(n.attributes["ref"].value)
+                node = session.query(osma.Node).filter_by(id=ref).one()
+                # Append to nodes in way
+                way.nodes.append(node)
 
-        # Store other attributes and tags
-        _dom_attrs_to_any(e, way)
-        _dom_tags_to_any(e, way)
+            # Store other attributes and tags
+            _dom_attrs_to_any(e, way)
+            _dom_tags_to_any(e, way)
 
         # Add to session
         session.add(way)
+        session.commit()
 
     def _dom_to_relation(e):
-        # Get mandatory way id
-        id = e.attributes["id"].value
+        with session.no_autoflush:
+            # Get mandatory way id
+            id = int(e.attributes["id"].value)
 
-        # Find object in database and create if non-existent
-        relation = session.query(osma.Relation).filter_by(id=id).scalar()
-        if relation is None:
-            relation = osma.Relation(id=id)
+            # Find object in database and create if non-existent
+            relation = session.query(osma.Relation).filter_by(id=id).scalar()
+            if relation is None:
+                relation = osma.Relation(id=id)
 
-        # Find all members
-        for m in e.getElementsByTagName("member"):
-            # Get member attributes
-            ref = m.attributes["ref"].value
-            type = m.attributes["type"].value
-            if "role" in m.attributes.keys():
-                role = m.attributes["role"].value
-            else:
-                role = ""
-            element = session.query(osma.Element).filter_by(id=ref, type=type).one()
-            # Append to members
-            relation.members.append((element, role))
+            # Find all members
+            for m in e.getElementsByTagName("member"):
+                # Get member attributes
+                ref = int(m.attributes["ref"].value)
+                type = m.attributes["type"].value
 
-        # Store other attributes and tags
-        _dom_attrs_to_any(e, relation)
-        _dom_tags_to_any(e, relation)
+                if "role" in m.attributes.keys():
+                    role = m.attributes["role"].value
+                else:
+                    role = ""
+                element = session.query(osma.Element).filter_by(id=ref, type=type).scalar()
+                if element is None:
+                    # We do not know the member yet, create a stub
+                    if type == "node":
+                        element = osma.Node(id=ref)
+                    elif type == "way":
+                        element = osma.Way(id=ref)
+                    elif type == "relation":
+                        element = osma.Relation(id=ref)
+                    # We need to commit here because element could be repeated
+                    session.add(element)
+                    session.commit()
+                # Append to members
+                relation.members.append((element, role))
+
+            # Store other attributes and tags
+            _dom_attrs_to_any(e, relation)
+            _dom_tags_to_any(e, relation)
 
         # Add to session
         session.add(relation)
+        session.commit()
 
     # Get root element
     osm = dom.documentElement
@@ -147,9 +165,6 @@ def _import_osm_dom(osma, session, dom):
             _dom_to_way(e)
         elif e.nodeName == "relation":
             _dom_to_relation(e)
-
-    # Commit session
-    session.commit()
 
 def _import_osm_xml(osma, session, xml):
     """ Import a string in OSM XML format into an OSMAlchemy model.
