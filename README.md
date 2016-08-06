@@ -76,6 +76,7 @@ it is incredibly fast, in comparison).
 ### Code status
 
 [![Build Status](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/build-status/master)
+[![Code Coverage](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Natureshadow/OSMAlchemy/?branch=master)
 
 ## License
