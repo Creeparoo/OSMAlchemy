@@ -30,6 +30,8 @@
 import datetime
 from sqlalchemy import inspect
 from sqlalchemy.event import listens_for
+from sqlalchemy.orm import Query
+from weakref import WeakSet
 
 from .online import _get_single_element_by_id
 from .util import _import_osm_xml
@@ -41,15 +43,18 @@ def _generate_triggers(osmalchemy, maxage=60*60*24):
       maxage - maximum age of objects before they are updated online, in seconds
     """
 
-    @listens_for(osmalchemy.Element, "load")
-    def element_loaded(element, context):
-        # Check the age of the element
-        updated = element.updated
-        now = datetime.datetime.now()
-        age = (updated-now).total_seconds()
+    _visited_queries = WeakSet()
 
-        # Should we update?
-        if age > maxage:
-            # Retrieve element with id from API
-            xml = _get_single_element_by_id(osmalchemy._overpass, element.type, element.id)
-            _import_osm_xml(osmalchemy, inspect(element).session, xml)
+    @listens_for(Query, "before_compile")
+    def _query_compiling(query):
+        # Get the session associated with the query:
+        session = query.session
+
+        # Prevent recursion by skipping already-seen queries
+        if query in _visited_queries:
+            return
+        else:
+            _visited_queries.add(query)
+
+        # FIXME actually implement
+        return
