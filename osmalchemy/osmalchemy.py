@@ -110,7 +110,7 @@ class OSMAlchemy(object):
             if overpass is True:
                 # Use default endpoint URL from overpass module
                 self._overpass = _generate_overpass_api()
-            elif type(overpass) is str::
+            elif type(overpass) is str:
                 # Pass given argument as custom URL
                 self._overpass = _generate_overpass_api(overpass)
             else:
