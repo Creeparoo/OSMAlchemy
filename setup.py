@@ -47,11 +47,13 @@ setup(
     zip_safe = True,
     install_requires = [
                         'SQLAlchemy>=1.0.0',
-                        'python-dateutil'
+                        'python-dateutil',
+                        'overpass'
                        ],
     tests_require = [
                      'SQLAlchemy>=1.0.0',
                      'python-dateutil',
+                     'overpass',
                      'psycopg2',
                      'testing.postgresql',
                      'testing.mysqld'
