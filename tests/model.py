@@ -97,6 +97,8 @@ class OSMAlchemyModelTests(object):
         # Store node
         self.session.add(node)
         self.session.commit()
+        # Ensure removal from ORM
+        self.session.remove()
 
         # Query for node and check
         node = self.session.query(self.osmalchemy.Node).filter_by(latitude=51.0).first()
@@ -112,6 +114,8 @@ class OSMAlchemyModelTests(object):
         # Store everything
         self.session.add(node)
         self.session.commit()
+        # Ensure removal from ORM
+        self.session.remove()
 
         # Query for node and check
         node = self.session.query(self.osmalchemy.Node).filter_by(latitude=51.0).first()
@@ -133,6 +137,8 @@ class OSMAlchemyModelTests(object):
         # Store everything
         self.session.add(way)
         self.session.commit()
+        # Ensure removal from ORM
+        self.session.remove()
 
         # Query for way and check
         way = self.session.query(self.osmalchemy.Way).first()
@@ -156,6 +162,8 @@ class OSMAlchemyModelTests(object):
         # Store everything
         self.session.add(way)
         self.session.commit()
+        # Ensure removal from ORM
+        self.session.remove()
 
         # Query for way and check
         way = self.session.query(self.osmalchemy.Way).first()
@@ -183,6 +191,8 @@ class OSMAlchemyModelTests(object):
         # Store everything
         self.session.add(way)
         self.session.commit()
+        # Ensure removal from ORM
+        self.session.remove()
 
         # Query for way and check
         way = self.session.query(self.osmalchemy.Way).first()
@@ -211,6 +221,8 @@ class OSMAlchemyModelTests(object):
         # Store everything
         self.session.add(relation)
         self.session.commit()
+        # Ensure removal from ORM
+        self.session.remove()
 
         # Query for way and check
         relation = self.session.query(self.osmalchemy.Relation).first()
@@ -242,6 +254,8 @@ class OSMAlchemyModelTests(object):
         # Store everything
         self.session.add(relation)
         self.session.commit()
+        # Ensure removal from ORM
+        self.session.remove()
 
         # Query for way and check
         relation = self.session.query(self.osmalchemy.Relation).first()
@@ -277,6 +291,8 @@ class OSMAlchemyModelTests(object):
         # Store everything
         self.session.add(relation)
         self.session.commit()
+        # Ensure removal from ORM
+        self.session.remove()
 
         # Query for way and check
         relation = self.session.query(self.osmalchemy.Relation).first()
