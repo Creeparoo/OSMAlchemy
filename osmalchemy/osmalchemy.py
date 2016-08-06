@@ -31,8 +31,9 @@ The classe encapsulates the model and accompanying logic.
 """
 
 from .model import _generate_model
-from .online import _gnerate_overpass_api
+from .online import _generate_overpass_api
 from .util import _import_osm_file
+from .triggers import _generate_triggers
 
 class OSMAlchemy(object):
     """ Wrapper class for the OSMAlchemy model and logic
@@ -43,7 +44,7 @@ class OSMAlchemy(object):
     different table prefix or a different declarative base.
     """
 
-    def __init__(self, base=None, prefix="osm_", overpass=None):
+    def __init__(self, base=None, prefix="osm_", overpass=None, maxage=60*60*24):
         """ Initialise the table definitions in the wrapper object
 
         This function generates the OSM element classes as SQLAlchemy table
@@ -76,6 +77,10 @@ class OSMAlchemy(object):
         # Generate model and store as instance members
         self.Node, self.Way, self.Relation, self.Element = _generate_model(self._base,
                                                                            self._prefix)
+
+        # Add triggers if online functionality is enabled
+        if self._overpass is not None:
+            _generate_triggers(self, maxage)
 
     def import_osm_file(self, session, path):
         _import_osm_file(self, session, path)
