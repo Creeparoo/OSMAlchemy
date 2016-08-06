@@ -166,6 +166,9 @@ def _import_osm_dom(osma, session, dom):
         elif e.nodeName == "relation":
             _dom_to_relation(e)
 
+        # Rmove children
+        e.unlink()
+
 def _import_osm_xml(osma, session, xml):
     """ Import a string in OSM XML format into an OSMAlchemy model.
 
