@@ -1,0 +1,25 @@
+build:
+    environment:
+        python: '2.7.7'
+    tests:
+        before:
+            - 'pip install pylint Coverage'
+        override:
+            -
+                command: 'coverage run --include="*osmalchemy*" setup.py test'
+                coverage:
+                    file: '.coverage'
+                    format: 'py-cc'
+                idle_timeout: 720
+            -
+                command: 'pylint osmalchemy --output-format=parseable --reports=n --include-naming-hint=y | tee pylint-data'
+                analysis:
+                    file: 'pylint-data'
+                    format: 'pylint-parseable'
+checks:
+    python:
+        code_rating: true
+        duplicate_code: true
+filter:
+    excluded_paths:
+        - 'tests/*'
