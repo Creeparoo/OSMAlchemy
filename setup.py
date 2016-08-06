@@ -26,7 +26,7 @@
 # MirOS Licence, GPL-2+, LGPL-2.1+, AGPL-3+ or the same terms as Python
 # itself.
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     # Basic information
@@ -41,7 +41,7 @@ setup(
     author_email = 'nik@naturalnet.de',
 
     # Included code
-    packages = find_packages(),
+    packages = ["osmalchemy"],
 
     # Distribution information
     zip_safe = True,
