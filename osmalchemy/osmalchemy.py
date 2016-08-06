@@ -83,19 +83,23 @@ class OSMAlchemy(object):
 
         # Inspect sa argument
         if type(sa) is tuple:
+            # Got tuple of (Engine, Base) or (Engine, Base, ScopedSession)
             self._engine = sa[0]
             self._base = sa[1]
             if len(sa) == 3:
                 self._session = sa[2]
         elif type(sa) is Engine:
+            # Got a plain engine, so derive the rest from it
             self._engine = sa
             self._base = declarative_base(bind=self._engine)
             self._session = scoped_session(sessionmaker(bind=self._engine))
         elif type(sa) is FlaskSQLAlchemy:
+            # Got a Flask-SQLAlchemy instance, extract everything from it
             self._engine = sa.engine
             self._base = sa.Model
             self._session = sa.session
         else:
+            # Something was passed, but none of the expected argument types
             raise TypeError("Invalid argument passed to sa parameter.")
 
         # Store prefix
@@ -104,10 +108,13 @@ class OSMAlchemy(object):
         # Store API endpoint for Overpass
         if overpass is not None:
             if overpass is True:
+                # Use default endpoint URL from overpass module
                 self._overpass = _generate_overpass_api()
             else:
+                # Pass given argument as custom URL
                 self._overpass = _generate_overpass_api(overpass)
         else:
+            # Do not use overpass
             self._overpass = None
 
         # Generate model and store as instance members
