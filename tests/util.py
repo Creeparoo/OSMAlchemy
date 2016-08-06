@@ -102,7 +102,7 @@ class OSMAlchemyUtilTests(object):
         # Import data into model
         self.osmalchemy.import_osm_file(path)
         # Ensure removal of everything from ORM
-        session.remove()
+        self.session.remove()
 
         # Check number of elements
         nodes = self.session.query(self.osmalchemy.Node).all()
