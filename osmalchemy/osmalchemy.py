@@ -128,5 +128,11 @@ class OSMAlchemy(object):
         if self._overpass is not None:
             _generate_triggers(self, maxage)
 
-    def import_osm_file(self, session, path):
-        _import_osm_file(self, session, path)
+    def import_osm_file(self, path):
+        """ Import data from an OSM XML file into this model.
+
+          path - path to the file to import
+        """
+
+        # Call utility funtion with own reference and session
+        _import_osm_file(self, self._session, path)

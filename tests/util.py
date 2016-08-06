@@ -100,7 +100,7 @@ class OSMAlchemyUtilTests(object):
         path = os.path.join(self.datadir, "schwarzrheindorf.osm")
 
         # Import data into model
-        self.osmalchemy.import_osm_file(self.session, path)
+        self.osmalchemy.import_osm_file(path)
         # Ensure removal of everything from ORM
         session.remove()
 
