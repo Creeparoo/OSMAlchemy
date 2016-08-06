@@ -46,6 +46,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+# Flask for testing integration with Flask
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
+
 # Create database engine factories to enable caching
 Postgresql = PostgresqlFactory(cache_initialized_db=True)
 Mysqld = MysqldFactory(cache_initialized_db=True)
@@ -80,15 +84,7 @@ class OSMAlchemyModelTests(object):
             profile[self.__class__.__name__] = {}
         profile[self.__class__.__name__][self.id().split(".")[-1]] = time.time()
 
-        self.base = declarative_base(bind=self.engine)
-        self.session = scoped_session(sessionmaker(bind=self.engine))
-        self.osmalchemy = OSMAlchemy((self.engine, self.base, self.session))
-        self.base.metadata.create_all()
-
     def tearDown(self):
-        self.session.remove()
-        self.engine.dispose()
-
         profile[self.__class__.__name__][self.id().split(".")[-1]] -= time.time()
         profile[self.__class__.__name__][self.id().split(".")[-1]] *= -1
 
@@ -305,9 +301,15 @@ class OSMAlchemyModelTestsSQLite(OSMAlchemyModelTests, unittest.TestCase):
 
     def setUp(self):
         self.engine = create_engine("sqlite:///:memory:")
+        self.base = declarative_base(bind=self.engine)
+        self.session = scoped_session(sessionmaker(bind=self.engine))
+        self.osmalchemy = OSMAlchemy((self.engine, self.base, self.session))
+        self.base.metadata.create_all()
         OSMAlchemyModelTests.setUp(self)
 
     def tearDown(self):
+        self.session.remove()
+        self.engine.dispose()
         OSMAlchemyModelTests.tearDown(self)
 
 class OSMAlchemyModelTestsPostgres(OSMAlchemyModelTests, unittest.TestCase):
@@ -316,9 +318,15 @@ class OSMAlchemyModelTestsPostgres(OSMAlchemyModelTests, unittest.TestCase):
     def setUp(self):
         self.postgresql = Postgresql()
         self.engine = create_engine(self.postgresql.url())
+        self.base = declarative_base(bind=self.engine)
+        self.session = scoped_session(sessionmaker(bind=self.engine))
+        self.osmalchemy = OSMAlchemy((self.engine, self.base, self.session))
+        self.base.metadata.create_all()
         OSMAlchemyModelTests.setUp(self)
 
     def tearDown(self):
+        self.session.remove()
+        self.engine.dispose()
         self.postgresql.stop()
         OSMAlchemyModelTests.tearDown(self)
 
@@ -328,10 +336,31 @@ class OSMAlchemyModelTestsMySQL(OSMAlchemyModelTests, unittest.TestCase):
     def setUp(self):
         self.mysql = Mysqld()
         self.engine = create_engine(self.mysql.url() + "?charset=utf8mb4")
+        self.base = declarative_base(bind=self.engine)
+        self.session = scoped_session(sessionmaker(bind=self.engine))
+        self.osmalchemy = OSMAlchemy((self.engine, self.base, self.session))
+        self.base.metadata.create_all()
         OSMAlchemyModelTests.setUp(self)
 
     def tearDown(self):
+        self.session.remove()
+        self.engine.dispose()
         self.mysql.stop()
+        OSMAlchemyModelTests.tearDown(self)
+
+class OSMAlchemyModelTestsFlaskSQLAlchemy(OSMAlchemyModelTests, unittest.TestCase):
+    """ Tests run with SQLite """
+
+    def setUp(self):
+        app = Flask("test")
+        db = FlaskSQLAlchemy(app)
+        self.session = db.session
+        self.osmalchemy = OSMAlchemy(db)
+        db.create_all()
+        OSMAlchemyModelTests.setUp(self)
+
+    def tearDown(self):
+        self.session.remove()
         OSMAlchemyModelTests.tearDown(self)
 
 # Make runnable as standalone script
