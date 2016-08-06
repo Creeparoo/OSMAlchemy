@@ -55,9 +55,17 @@ setup(
                      'python-dateutil',
                      'overpass',
                      'psycopg2',
+                     'Flask>=0.10',
+                     'Flask-SQLAlchemy',
                      'testing.postgresql',
                      'testing.mysqld'
                     ],
+    extras_require = {
+                      'Flask': [
+                                'Flask>=0.10',
+                                'Flask-SQLAlchemy'
+                               ]
+                     },
     test_suite = 'tests',
     classifiers = [
                    'Development Status :: 3 - Alpha',
