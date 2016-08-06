@@ -31,6 +31,7 @@ The classe encapsulates the model and accompanying logic.
 """
 
 from .model import _generate_model
+from .online import _gnerate_overpass_api
 from .util import _import_osm_file
 
 class OSMAlchemy(object):
@@ -42,7 +43,7 @@ class OSMAlchemy(object):
     different table prefix or a different declarative base.
     """
 
-    def __init__(self, base=None, prefix="osm_"):
+    def __init__(self, base=None, prefix="osm_", overpass=None):
         """ Initialise the table definitions in the wrapper object
 
         This function generates the OSM element classes as SQLAlchemy table
@@ -65,6 +66,12 @@ class OSMAlchemy(object):
 
         # Store prefix
         self._prefix = prefix
+
+        # Store API endpoint for Overpass
+        if overpass is not None:
+            self._overpass = _generate_overpass_api(overpass)
+        else:
+            self._overpass = None
 
         # Generate model and store as instance members
         self.Node, self.Way, self.Relation, self.Element = _generate_model(self._base,
