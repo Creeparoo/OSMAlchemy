@@ -31,6 +31,7 @@ The classe encapsulates the model and accompanying logic.
 """
 
 from sqlalchemy.engine import Engine
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 try:
     from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
