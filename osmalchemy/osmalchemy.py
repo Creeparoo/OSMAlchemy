@@ -30,6 +30,16 @@
 The classe encapsulates the model and accompanying logic.
 """
 
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+try:
+    from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
+except ImportError:
+    # non-fatal, Flask-SQLAlchemy support is optional
+    # Create stub to avoid bad code later on
+    class FlaskSQLAlchemy(object):
+        pass
+
 from .model import _generate_model
 from .online import _generate_overpass_api
 from .util import _import_osm_file
@@ -44,26 +54,49 @@ class OSMAlchemy(object):
     different table prefix or a different declarative base.
     """
 
-    def __init__(self, base=None, prefix="osm_", overpass=None, maxage=60*60*24):
+    def __init__(self, sa, prefix="osm_", overpass=None, maxage=60*60*24):
         """ Initialise the table definitions in the wrapper object
 
         This function generates the OSM element classes as SQLAlchemy table
-        declaratives. If called without an argument, it uses a newly created
-        declarative base.
+        declaratives.
 
-        The base argument, if provided, can be either a declarative base or
-        a Flask-SQLAlchemy object.
+        Positional arguments:
+
+          sa - reference to SQLAlchemy stuff; can be either of…
+                 …an Engine instance, or…
+                 …a tuple of (Engine, Base), or…
+                 …a tuple of (Engine, Base, ScopedSession), or…
+                 …a Flask-SQLAlchemy instance.
+          prefix - optional; prefix for table names, defaults to "osm_"
+          overpass - optional; API endpoint URL for Overpass API. Can be…
+                      …None to disable loading data from Overpass (the default), or…
+                      …True to enable the default endpoint URL, or…
+                      …a string with a custom endpoint URL.
+          maxage - optional; the maximum age after which elements are refreshed from
+                   Overpass, in seconds, defaults to 86400s (1d)
         """
 
-        # Check what we got as declarative base
-        if base is None:
-            # Nothing, so create one
-            self._base = declarative_base()
-        elif hasattr(base, "Model"):
-            # Unwrap Flask-SQLAlchemy object if we got one
-            self._base = base.Model
+        # Create fields for SQLAlchemy stuff
+        self.base = None
+        self.engine = None
+        self.session = None
+
+        # Inspect sa argument
+        if type(sa) is tuple:
+            self._engine = sa[0]
+            self._base = sa[1]
+            if len(sa) == 3:
+                self._session = sa[2]
+        elif type(sa) is Engine:
+            self._engine = sa
+            self._base = declarative_base(bind=self._engine)
+            self._session = scoped_session(sessionmaker(bind=self._engine))
+        elif type(sa) is FlaskSQLAlchemy:
+            self._engine = sa.engine
+            self._base = sa.Model
+            self._session = sa.session
         else:
-            self._base = base
+            raise TypeError("Invalid argument passed to sa parameter.")
 
         # Store prefix
         self._prefix = prefix

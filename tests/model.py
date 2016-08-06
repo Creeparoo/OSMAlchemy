@@ -44,7 +44,7 @@ from osmalchemy import OSMAlchemy
 # SQLAlchemy for working with model and data
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 # Create database engine factories to enable caching
 Postgresql = PostgresqlFactory(cache_initialized_db=True)
@@ -81,12 +81,12 @@ class OSMAlchemyModelTests(object):
         profile[self.__class__.__name__][self.id().split(".")[-1]] = time.time()
 
         self.base = declarative_base(bind=self.engine)
-        self.osmalchemy = OSMAlchemy(self.base)
+        self.session = scoped_session(sessionmaker(bind=self.engine))
+        self.osmalchemy = OSMAlchemy((self.engine, self.base, self.session))
         self.base.metadata.create_all()
-        self.session = sessionmaker(bind=self.engine)()
 
     def tearDown(self):
-        self.session.close()
+        self.session.remove()
         self.engine.dispose()
 
         profile[self.__class__.__name__][self.id().split(".")[-1]] -= time.time()
