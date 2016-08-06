@@ -70,7 +70,10 @@ class OSMAlchemy(object):
 
         # Store API endpoint for Overpass
         if overpass is not None:
-            self._overpass = _generate_overpass_api(overpass)
+            if overpass is True:
+                self._overpass = _generate_overpass_api()
+            else:
+                self._overpass = _generate_overpass_api(overpass)
         else:
             self._overpass = None
 
