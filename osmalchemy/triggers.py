@@ -84,7 +84,7 @@ def _generate_triggers(osmalchemy, maxage=60*60*24):
                 operator.or_: "||"}
 
         # Traverse whereclause recursively
-        def _analyse_clause(clause):
+        def _analyse_clause(clause, target):
             if type(clause) is BinaryExpression:
                 # This is something like "latitude >= 51.0"
                 left = clause.left
@@ -97,10 +97,10 @@ def _generate_triggers(osmalchemy, maxage=60*60*24):
                     model = left._annotations["parentmapper"].class_
                     field = left
 
-                    # Double-check this model belongs to us
-                    if model in our_models:
-                        # Convert model class and field to string names
-                        left = (model.__name__, field.name)
+                    # Only use if we are looking for this model
+                    if model is target:
+                        # Store field name
+                        left = field.name
                     else:
                         return None
                 else:
@@ -133,7 +133,7 @@ def _generate_triggers(osmalchemy, maxage=60*60*24):
                 # Iterate over all the clauses in this operation
                 for clause in clause.clauses:
                     # Recursively analyse clauses
-                    res = _analyse_clause(clause)
+                    res = _analyse_clause(clause, target)
                     # None is returned for unsupported clauses or operations
                     if res is not None:
                         # Append polish notation result to clauses list
@@ -152,4 +152,7 @@ def _generate_triggers(osmalchemy, maxage=60*60*24):
             else:
                 # We hit an unsupported type of clause
                 return None
-        tree = _analyse_clause(query.whereclause)
+        # Analyse where clause looking for all looked-up fields
+        tree = {}
+        for target in our_models.intersection(affected_models):
+            tree[target.__name__] = _analyse_clause(query.whereclause, target)
