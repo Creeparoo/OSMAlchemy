@@ -56,5 +56,18 @@ def _generate_triggers(osmalchemy, maxage=60*60*24):
         else:
             _visited_queries.add(query)
 
-        # FIXME actually implement
-        return
+        # Check whether this query affects our model
+        affected_models = set([c["type"] for c in query.column_descriptions])
+        our_models = set([osmalchemy.Node, osmalchemy.Way,  osmalchemy.Relation,
+                          osmalchemy.Element])
+        if affected_models.isdisjoint(our_models):
+            # None of our models is affected
+            return
+
+        # Check whether this query filters elements
+        # Online update will only run on a specified set, not all data
+        if query.whereclause is None:
+            # No filters
+            return
+
+        # FIXME analyse whereclause here
