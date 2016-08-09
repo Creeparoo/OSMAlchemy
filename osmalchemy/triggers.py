@@ -61,8 +61,8 @@ def _generate_triggers(osmalchemy, maxage=60*60*24):
 
         # Check whether this query affects our model
         affected_models = set([c["type"] for c in query.column_descriptions])
-        our_models = set([osmalchemy.Node, osmalchemy.Way,  osmalchemy.Relation,
-                          osmalchemy.Element])
+        our_models = set([osmalchemy.node, osmalchemy.way,  osmalchemy.relation,
+                          osmalchemy.element])
         if affected_models.isdisjoint(our_models):
             # None of our models is affected
             return

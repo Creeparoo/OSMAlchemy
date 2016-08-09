@@ -105,15 +105,15 @@ class OSMAlchemyUtilTests(object):
         self.session.remove()
 
         # Check number of elements
-        nodes = self.session.query(self.osmalchemy.Node).all()
-        ways = self.session.query(self.osmalchemy.Way).all()
-        relations = self.session.query(self.osmalchemy.Relation).all()
+        nodes = self.session.query(self.osmalchemy.node).all()
+        ways = self.session.query(self.osmalchemy.way).all()
+        relations = self.session.query(self.osmalchemy.relation).all()
         self.assertGreaterEqual(len(nodes), 7518)
         self.assertGreaterEqual(len(ways), 1559)
         self.assertGreaterEqual(len(relations), 33)
 
         # Try to retrieve some node and make checks on it
-        haltestelle = self.session.query(self.osmalchemy.Node).filter_by(id=252714572).one()
+        haltestelle = self.session.query(self.osmalchemy.node).filter_by(id=252714572).one()
         # Check metadata
         self.assertEqual(haltestelle.id, 252714572)
         self.assertEqual(haltestelle.latitude, 50.7509314)
@@ -123,11 +123,11 @@ class OSMAlchemyUtilTests(object):
         self.assertEqual(haltestelle.tags["VRS:ref"], "65248")
         self.assertEqual(haltestelle.tags["name"], "Schwarzrheindorf Kirche")
         # Check node on a street
-        wittestr = self.session.query(self.osmalchemy.Way).filter_by(id=23338279).one()
+        wittestr = self.session.query(self.osmalchemy.way).filter_by(id=23338279).one()
         self.assertIn(haltestelle, wittestr.nodes)
 
         # Try to retrieve some way and do checks on it
-        doppelkirche = self.session.query(self.osmalchemy.Way).filter_by(id=83296962).one()
+        doppelkirche = self.session.query(self.osmalchemy.way).filter_by(id=83296962).one()
         # Verify metadata
         self.assertEqual(doppelkirche.id, 83296962)
         self.assertEqual(doppelkirche.visible, True)
@@ -143,18 +143,18 @@ class OSMAlchemyUtilTests(object):
                  969195740, 969195742, 969195745, 969195750, 969195751, 969195752,
                  969195753, 1751858766, 969195754, 969195759, 969218844, 969195704)
         for ref in nodes:
-            nd = self.session.query(self.osmalchemy.Node).filter_by(id=ref).one()
+            nd = self.session.query(self.osmalchemy.node).filter_by(id=ref).one()
             # Verify existence
             self.assertIn(nd, doppelkirche.nodes)
             # Verify ordering
             self.assertIs(doppelkirche.nodes[nodes.index(ref)], nd)
         # Cross-check other nodes are not in way
         for ref in (26853096, 26853100, 247056873):
-            nd = self.session.query(self.osmalchemy.Node).filter_by(id=ref).one()
+            nd = self.session.query(self.osmalchemy.node).filter_by(id=ref).one()
             self.assertNotIn(nd, doppelkirche.nodes)
 
         # Try to retrieve some relation and make checks on it
-        buslinie = self.session.query(self.osmalchemy.Relation).filter_by(id=1823975).one()
+        buslinie = self.session.query(self.osmalchemy.relation).filter_by(id=1823975).one()
         # Check metadata
         self.assertEqual(buslinie.id, 1823975)
         self.assertEqual(buslinie.changeset, 40638463)

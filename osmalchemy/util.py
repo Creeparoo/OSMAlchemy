@@ -68,9 +68,9 @@ def _import_osm_dom(osma, session, dom):
             id = int(e.attributes["id"].value)
 
             # Find object in database and create if non-existent
-            node = session.query(osma.Node).filter_by(id=id).scalar()
+            node = session.query(osma.node).filter_by(id=id).scalar()
             if node is None:
-                node = osma.Node(id=id)
+                node = osma.node(id=id)
 
             # Store mandatory latitude and longitude
             node.latitude = e.attributes["lat"].value
@@ -90,15 +90,15 @@ def _import_osm_dom(osma, session, dom):
             id = int(e.attributes["id"].value)
 
             # Find object in database and create if non-existent
-            way = session.query(osma.Way).filter_by(id=id).scalar()
+            way = session.query(osma.way).filter_by(id=id).scalar()
             if way is None:
-                way = osma.Way(id=id)
+                way = osma.way(id=id)
 
             # Find all related nodes
             for n in e.getElementsByTagName("nd"):
                 # Get node id and find object
                 ref = int(n.attributes["ref"].value)
-                node = session.query(osma.Node).filter_by(id=ref).one()
+                node = session.query(osma.node).filter_by(id=ref).one()
                 # Append to nodes in way
                 way.nodes.append(node)
 
@@ -116,9 +116,9 @@ def _import_osm_dom(osma, session, dom):
             id = int(e.attributes["id"].value)
 
             # Find object in database and create if non-existent
-            relation = session.query(osma.Relation).filter_by(id=id).scalar()
+            relation = session.query(osma.relation).filter_by(id=id).scalar()
             if relation is None:
-                relation = osma.Relation(id=id)
+                relation = osma.relation(id=id)
 
             # Find all members
             for m in e.getElementsByTagName("member"):
@@ -130,15 +130,15 @@ def _import_osm_dom(osma, session, dom):
                     role = m.attributes["role"].value
                 else:
                     role = ""
-                element = session.query(osma.Element).filter_by(id=ref, type=type).scalar()
+                element = session.query(osma.element).filter_by(id=ref, type=type).scalar()
                 if element is None:
                     # We do not know the member yet, create a stub
                     if type == "node":
-                        element = osma.Node(id=ref)
+                        element = osma.node(id=ref)
                     elif type == "way":
-                        element = osma.Way(id=ref)
+                        element = osma.way(id=ref)
                     elif type == "relation":
-                        element = osma.Relation(id=ref)
+                        element = osma.relation(id=ref)
                     # We need to commit here because element could be repeated
                     session.add(element)
                     session.commit()
