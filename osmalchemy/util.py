@@ -28,7 +28,10 @@
 """ Utility code for OSMAlchemy. """
 
 import dateutil.parser
+import operator
 import xml.dom.minidom as minidom
+from sqlalchemy.sql.elements import BinaryExpression, BooleanClauseList, BindParameter
+from sqlalchemy.sql.annotation import AnnotatedColumn
 
 def _import_osm_dom(osma, session, dom):
     """ Import a DOM tree from OSM XML into an OSMAlchemy model.
@@ -194,3 +197,82 @@ def _import_osm_file(osma, session, file):
     dom = minidom.parse(file)
 
     return _import_osm_dom(osma, session, dom)
+
+# Define operator to string mapping
+_ops = {operator.eq: "==",
+        operator.ne: "!=",
+        operator.lt: "<",
+        operator.gt: ">",
+        operator.le: "<=",
+        operator.ge: ">=",
+        operator.and_: "&&",
+        operator.or_: "||"}
+
+def _analyse_clause(clause, target):
+    if type(clause) is BinaryExpression:
+        # This is something like "latitude >= 51.0"
+        left = clause.left
+        right = clause.right
+        op = clause.operator
+
+        # Left part should be a column
+        if type(left) is AnnotatedColumn:
+            # Get table class and field
+            model = left._annotations["parentmapper"].class_
+            field = left
+
+            # Only use if we are looking for this model
+            if model is target:
+                # Store field name
+                left = field.name
+            else:
+                return None
+        else:
+            # Right now, we cannot cope with anything but a column on the left
+            return None
+
+        # Right part should be a literal value
+        if type(right) is BindParameter:
+            # Extract literal value
+            right = right.value
+        else:
+            # Right now, we cannot cope with something else here
+            return None
+
+        # Look for a known operator
+        if op in _ops.keys():
+            # Get string representation
+            op = _ops[op]
+        else:
+            # Right now, we cannot cope with other operators
+            return None
+
+        # Return polish notation tuple of this clause
+        return (op, left, right)
+    elif type(clause) is BooleanClauseList:
+        # This is an AND or OR operation
+        op = clause.operator
+        clauses = []
+
+        # Iterate over all the clauses in this operation
+        for clause in clause.clauses:
+            # Recursively analyse clauses
+            res = _analyse_clause(clause, target)
+            # None is returned for unsupported clauses or operations
+            if res is not None:
+                # Append polish notation result to clauses list
+                clauses.append(res)
+
+        # Look for a known operator
+        if op in _ops.keys():
+            # Get string representation
+            op = _ops[op]
+        else:
+            # Right now, we cannot cope with anything else
+            return None
+
+        # Return polish notation tuple of this clause
+        return (op, clauses)
+    else:
+        # We hit an unsupported type of clause
+        return None
