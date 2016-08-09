@@ -122,7 +122,7 @@ class OSMAlchemy(object):
             self._overpass = None
 
         # Generate model and store as instance members
-        self.Node, self.Way, self.Relation, self.Element = _generate_model(self._base,
+        self.node, self.way, self.relation, self.element = _generate_model(self._base,
                                                                            self._prefix)
 
         # Add triggers if online functionality is enabled
